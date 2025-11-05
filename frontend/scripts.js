@@ -26,6 +26,57 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Horarios disponibles
+const horariosDisponibles = [
+    "09:00", "10:00", "11:00", "12:00", 
+    "14:00", "15:00", "16:00", "17:00"
+];
+
+// Función para obtener horas ocupadas para una fecha específica
+function obtenerHorasOcupadas(fecha) {
+    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    const turnosAdmin = JSON.parse(localStorage.getItem('turnosAdmin')) || [];
+    
+    // Combinar todos los turnos
+    const todosLosTurnos = [...turnosPublicos, ...turnosAdmin];
+    
+    // Filtrar turnos para la fecha específica y obtener las horas
+    const horasOcupadas = todosLosTurnos
+        .filter(turno => turno.fecha === fecha)
+        .map(turno => turno.hora);
+    
+    return horasOcupadas;
+}
+
+// Función para actualizar las horas disponibles en el select
+function actualizarHorasDisponibles() {
+    const fechaSeleccionada = document.getElementById('fecha').value;
+    const selectHora = document.getElementById('hora');
+    
+    // Limpiar el select
+    selectHora.innerHTML = '<option value="">Seleccione una hora</option>';
+    
+    if (!fechaSeleccionada) return;
+    
+    // Obtener horas ocupadas para la fecha seleccionada
+    const horasOcupadas = obtenerHorasOcupadas(fechaSeleccionada);
+    
+    // Agregar opciones de horas disponibles
+    horariosDisponibles.forEach(hora => {
+        const option = document.createElement('option');
+        option.value = hora;
+        option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+        
+        // Deshabilitar opción si la hora está ocupada
+        if (horasOcupadas.includes(hora)) {
+            option.disabled = true;
+            option.textContent += ' (No disponible)';
+        }
+        
+        selectHora.appendChild(option);
+    });
+}
+
 // Sistema de turnos
 document.getElementById('turnoForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -41,6 +92,13 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
     
     if (!nombre || !email || !telefono || !mascota || !servicio || !fecha || !hora) {
         alert('Por favor, complete todos los campos obligatorios.');
+        return;
+    }
+    
+    // Verificar si la hora ya está ocupada
+    const horasOcupadas = obtenerHorasOcupadas(fecha);
+    if (horasOcupadas.includes(hora)) {
+        alert('Lo sentimos, esa hora ya no está disponible. Por favor, seleccione otra hora.');
         return;
     }
     
@@ -67,6 +125,9 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
     
     // Limpiar formulario
     document.getElementById('turnoForm').reset();
+    
+    // Actualizar horas disponibles
+    actualizarHorasDisponibles();
 });
 
 // Función para guardar turno en localStorage
@@ -104,6 +165,16 @@ window.addEventListener('click', function(e) {
 const today = new Date();
 const formattedDate = today.toISOString().split('T')[0];
 document.getElementById('fecha').min = formattedDate;
+
+// Actualizar horas disponibles cuando cambia la fecha
+document.getElementById('fecha').addEventListener('change', function() {
+    actualizarHorasDisponibles();
+});
+
+// Inicializar horas disponibles al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    actualizarHorasDisponibles();
+});
 
 // Efecto de aparición al hacer scroll
 const observerOptions = {

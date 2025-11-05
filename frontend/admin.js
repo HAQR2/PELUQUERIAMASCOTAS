@@ -71,6 +71,57 @@ let turnosAdmin = JSON.parse(localStorage.getItem('turnosAdmin')) || [
     { id: 2, clienteId: 2, mascotaId: 2, fecha: new Date().toISOString().split('T')[0], hora: "11:00", servicio: "Consulta Veterinaria" }
 ];
 
+// Horarios disponibles
+const horariosDisponibles = [
+    "09:00", "10:00", "11:00", "12:00", 
+    "14:00", "15:00", "16:00", "17:00"
+];
+
+// Función para obtener horas ocupadas para una fecha específica
+function obtenerHorasOcupadas(fecha) {
+    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    const turnosAdmin = JSON.parse(localStorage.getItem('turnosAdmin')) || [];
+    
+    // Combinar todos los turnos
+    const todosLosTurnos = [...turnosPublicos, ...turnosAdmin];
+    
+    // Filtrar turnos para la fecha específica y obtener las horas
+    const horasOcupadas = todosLosTurnos
+        .filter(turno => turno.fecha === fecha)
+        .map(turno => turno.hora);
+    
+    return horasOcupadas;
+}
+
+// Función para actualizar las horas disponibles en el select
+function actualizarHorasDisponiblesAdmin() {
+    const fechaSeleccionada = document.getElementById('turnoFecha').value;
+    const selectHora = document.getElementById('turnoHora');
+    
+    // Limpiar el select
+    selectHora.innerHTML = '<option value="">Seleccione una hora</option>';
+    
+    if (!fechaSeleccionada) return;
+    
+    // Obtener horas ocupadas para la fecha seleccionada
+    const horasOcupadas = obtenerHorasOcupadas(fechaSeleccionada);
+    
+    // Agregar opciones de horas disponibles
+    horariosDisponibles.forEach(hora => {
+        const option = document.createElement('option');
+        option.value = hora;
+        option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+        
+        // Deshabilitar opción si la hora está ocupada
+        if (horasOcupadas.includes(hora)) {
+            option.disabled = true;
+            option.textContent += ' (No disponible)';
+        }
+        
+        selectHora.appendChild(option);
+    });
+}
+
 // Guardar datos en localStorage
 function guardarDatos() {
     localStorage.setItem('clientes', JSON.stringify(clientes));
@@ -163,6 +214,13 @@ document.getElementById('formTurnoAdmin').addEventListener('submit', function(e)
     
     if (!clienteId || !mascotaId || !servicio || !fecha || !hora) {
         mostrarMensaje('Por favor, complete todos los campos obligatorios');
+        return;
+    }
+    
+    // Verificar si la hora ya está ocupada
+    const horasOcupadas = obtenerHorasOcupadas(fecha);
+    if (horasOcupadas.includes(hora)) {
+        mostrarMensaje('Lo sentimos, esa hora ya está ocupada. Por favor, elija otra.');
         return;
     }
     
@@ -597,6 +655,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar fecha de la semana (hoy por defecto)
     const hoy = new Date();
     document.getElementById('consultaSemana').value = hoy.toISOString().split('T')[0];
+    
+    // Actualizar horas disponibles en el formulario administrativo
+    actualizarHorasDisponiblesAdmin();
+});
+
+// Actualizar horas disponibles cuando cambia la fecha en el formulario administrativo
+document.getElementById('turnoFecha').addEventListener('change', function() {
+    actualizarHorasDisponiblesAdmin();
 });
 
 // Efecto de aparición al hacer scroll
