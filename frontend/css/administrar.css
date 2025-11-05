@@ -836,3 +836,102 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+/* Estilos para la vista de semana */
+.fecha-group {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    border-left: 4px solid #ff7a5a;
+}
+
+.fecha-group h4 {
+    margin-bottom: 15px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.estado-pasado {
+    background-color: #6c757d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.estado-hoy {
+    background-color: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.estado-futuro {
+    background-color: #17a2b8;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.turno-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.turno-hora {
+    background-color: #ff7a5a;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.turno-mensaje {
+    background-color: #e7f3ff;
+    border-left: 3px solid #007bff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.turno-mensaje strong {
+    color: #007bff;
+}
+
+.turno-mensaje p {
+    margin: 5px 0 0 0;
+    color: #333;
+}
+
+.sin-turnos {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 20px;
+}
+
+.turno-contacto {
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.turno-info p {
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.turno-info i {
+    color: #ff7a5a;
+    width: 16px;
+}

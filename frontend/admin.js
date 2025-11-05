@@ -424,89 +424,149 @@ function cargarTurnosDia() {
 }
 
 function cargarTurnosSemana() {
-    const fechaInicio = document.getElementById('consultaSemana').value || new Date().toISOString().split('T')[0];
-    const fechaInicioObj = new Date(fechaInicio);
-    const fechaFinObj = new Date(fechaInicioObj);
-    fechaFinObj.setDate(fechaFinObj.getDate() + 6); // 7 días incluyendo el inicial
+    const fechaSeleccionada = document.getElementById('consultaSemana').value || new Date().toISOString().split('T')[0];
+    const fechaSeleccionadaObj = new Date(fechaSeleccionada);
     
     const listaTurnos = document.getElementById('listaTurnosSemana');
     listaTurnos.innerHTML = '';
     
+    // Mostrar loading
+    document.getElementById('loadingSemana').style.display = 'block';
+    
     // Obtener turnos públicos
     const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
     
-    // Filtramos turnos de la semana seleccionada
-    const turnosSemanaAdmin = turnosAdmin.filter(t => {
-        const fechaTurno = new Date(t.fecha);
-        return fechaTurno >= fechaInicioObj && fechaTurno <= fechaFinObj;
-    });
+    // Obtener turnos del administrador
+    const todosLosTurnos = [...turnosAdmin, ...turnosPublicos];
     
-    const turnosSemanaPublicos = turnosPublicos.filter(t => {
-        const fechaTurno = new Date(t.fecha);
-        return fechaTurno >= fechaInicioObj && fechaTurno <= fechaFinObj;
-    });
-    
-    // Combinar todos los turnos
-    const todosLosTurnosSemana = [...turnosSemanaAdmin, ...turnosSemanaPublicos];
-    
-    if (todosLosTurnosSemana.length === 0) {
-        listaTurnos.innerHTML = '<div class="turno-item">No hay turnos para esta semana</div>';
+    if (todosLosTurnos.length === 0) {
+        document.getElementById('loadingSemana').style.display = 'none';
+        listaTurnos.innerHTML = '<div class="turno-item">No hay turnos registrados</div>';
         return;
+    }
+    
+    // Crear array de los últimos 7 días (3 días antes + hoy + 3 días después)
+    const diasSemana = [];
+    for (let i = -3; i <= 3; i++) {
+        const fecha = new Date(fechaSeleccionadaObj);
+        fecha.setDate(fecha.getDate() + i);
+        diasSemana.push(fecha.toISOString().split('T')[0]);
     }
     
     // Agrupar turnos por fecha
     const turnosPorFecha = {};
-    todosLosTurnosSemana.forEach(turno => {
-        if (!turnosPorFecha[turno.fecha]) {
-            turnosPorFecha[turno.fecha] = [];
-        }
-        turnosPorFecha[turno.fecha].push(turno);
+    diasSemana.forEach(fecha => {
+        turnosPorFecha[fecha] = todosLosTurnos.filter(turno => turno.fecha === fecha);
     });
     
     // Mostrar turnos agrupados por fecha
-    Object.keys(turnosPorFecha).sort().forEach(fecha => {
-        const fechaElement = document.createElement('div');
-        fechaElement.className = 'fecha-group';
-        fechaElement.innerHTML = `<h4>${formatearFecha(fecha)}</h4>`;
-        listaTurnos.appendChild(fechaElement);
+    setTimeout(() => {
+        document.getElementById('loadingSemana').style.display = 'none';
         
-        // Ordenar turnos por hora
-        turnosPorFecha[fecha].sort((a, b) => a.hora.localeCompare(b.hora));
-        
-        turnosPorFecha[fecha].forEach(turno => {
-            let turnoElement;
+        Object.keys(turnosPorFecha).sort().forEach(fecha => {
+            const fechaObj = new Date(fecha);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            fechaObj.setHours(0, 0, 0, 0);
             
-            if (turno.clienteId) {
-                // Turno del administrador
-                const cliente = clientes.find(c => c.id === turno.clienteId);
-                const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
-                
-                if (!cliente || !mascota) return;
-                
-                turnoElement = document.createElement('div');
-                turnoElement.className = 'turno-item';
-                turnoElement.innerHTML = `
-                    <div class="turno-info">
-                        <p><strong>${cliente.nombre} ${cliente.apellido}</strong> - ${mascota.nombre} (${mascota.tipo})</p>
-                        <p>${turno.hora} - ${turno.servicio}</p>
-                    </div>
-                `;
+            const fechaElement = document.createElement('div');
+            fechaElement.className = 'fecha-group';
+            
+            // Determinar si es pasado, presente o futuro
+            let estado = '';
+            if (fechaObj < hoy) {
+                estado = '<span class="estado-pasado">(Pasado)</span>';
+            } else if (fechaObj.getTime() === hoy.getTime()) {
+                estado = '<span class="estado-hoy">(Hoy)</span>';
             } else {
-                // Turno público
-                turnoElement = document.createElement('div');
-                turnoElement.className = 'turno-item';
-                turnoElement.innerHTML = `
-                    <div class="turno-info">
-                        <p><strong>${turno.nombre}</strong> - ${turno.mascota}</p>
-                        <p>${turno.hora} - ${turno.servicio}</p>
-                        <p class="turno-contacto">📞 ${turno.telefono}</p>
-                    </div>
-                `;
+                estado = '<span class="estado-futuro">(Próximo)</span>';
             }
             
-            listaTurnos.appendChild(turnoElement);
+            fechaElement.innerHTML = `
+                <h4>${formatearFecha(fecha)} ${estado}</h4>
+            `;
+            listaTurnos.appendChild(fechaElement);
+            
+            const turnosDelDia = turnosPorFecha[fecha];
+            
+            if (turnosDelDia.length === 0) {
+                const sinTurnosElement = document.createElement('div');
+                sinTurnosElement.className = 'turno-item sin-turnos';
+                sinTurnosElement.innerHTML = '<p>No hay turnos para este día</p>';
+                listaTurnos.appendChild(sinTurnosElement);
+            } else {
+                // Ordenar turnos por hora
+                turnosDelDia.sort((a, b) => a.hora.localeCompare(b.hora));
+                
+                turnosDelDia.forEach(turno => {
+                    let turnoElement;
+                    
+                    if (turno.clienteId) {
+                        // Turno del administrador
+                        const cliente = clientes.find(c => c.id === turno.clienteId);
+                        const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+                        
+                        if (!cliente || !mascota) return;
+                        
+                        turnoElement = document.createElement('div');
+                        turnoElement.className = 'turno-item';
+                        turnoElement.innerHTML = `
+                            <div class="turno-info">
+                                <div class="turno-header">
+                                    <strong>${cliente.nombre} ${cliente.apellido}</strong>
+                                    <span class="turno-hora">${turno.hora}</span>
+                                </div>
+                                <p><i class="fas fa-paw"></i> ${mascota.nombre} (${mascota.tipo})</p>
+                                <p><i class="fas fa-concierge-bell"></i> ${turno.servicio || 'Servicio no especificado'}</p>
+                                ${turno.mensaje ? `
+                                    <div class="turno-mensaje">
+                                        <strong><i class="fas fa-comment"></i> Mensaje:</strong>
+                                        <p>${turno.mensaje}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="turno-actions">
+                                <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
+                                    <i class="fas fa-trash"></i> Cancelar
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        // Turno público
+                        turnoElement = document.createElement('div');
+                        turnoElement.className = 'turno-item';
+                        turnoElement.innerHTML = `
+                            <div class="turno-info">
+                                <div class="turno-header">
+                                    <strong>${turno.nombre}</strong>
+                                    <span class="turno-hora">${turno.hora}</span>
+                                </div>
+                                <p><i class="fas fa-paw"></i> ${turno.mascota}</p>
+                                <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
+                                <p class="turno-contacto">
+                                    <i class="fas fa-phone"></i> ${turno.telefono} 
+                                    | <i class="fas fa-envelope"></i> ${turno.email}
+                                </p>
+                                ${turno.mensaje ? `
+                                    <div class="turno-mensaje">
+                                        <strong><i class="fas fa-comment"></i> Mensaje adicional:</strong>
+                                        <p>${turno.mensaje}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="turno-actions">
+                                <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
+                                    <i class="fas fa-trash"></i> Cancelar
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    listaTurnos.appendChild(turnoElement);
+                });
+            }
         });
-    });
+    }, 500); // Simular carga
 }
 
 function eliminarTurnoAdmin(id) {
@@ -531,13 +591,14 @@ function eliminarTurnoPublico(id) {
 }
 
 function formatearFecha(fecha) {
-    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(fecha).toLocaleDateString('es-ES', opciones);
-}
-
-function mostrarMensaje(mensaje) {
-    // En una implementación real, usaríamos un sistema de notificaciones
-    alert(mensaje);
+    const fechaObj = new Date(fecha);
+    const opciones = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    return fechaObj.toLocaleDateString('es-ES', opciones);
 }
 
 function actualizarSelectClientes() {
