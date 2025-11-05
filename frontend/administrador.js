@@ -44,8 +44,9 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // En una implementación real, aquí enviaríamos los datos al servidor Python
-    const datosTurno = {
+    // Crear objeto de turno
+    const turno = {
+        id: Date.now(), // ID único basado en timestamp
         nombre: nombre,
         email: email,
         telefono: telefono,
@@ -53,10 +54,13 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
         servicio: servicio,
         fecha: fecha,
         hora: hora,
-        mensaje: document.getElementById('mensaje').value
+        mensaje: document.getElementById('mensaje').value,
+        tipo: 'publico', // Para identificar que viene del formulario público
+        fechaCreacion: new Date().toISOString()
     };
     
-    enviarDatosAlBackend(datosTurno);
+    // Guardar turno en localStorage
+    guardarTurno(turno);
     
     // Mostrar modal de confirmación
     document.getElementById('confirmationModal').style.display = 'block';
@@ -64,6 +68,24 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
     // Limpiar formulario
     document.getElementById('turnoForm').reset();
 });
+
+// Función para guardar turno en localStorage
+function guardarTurno(turno) {
+    // Obtener turnos existentes
+    let turnos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    
+    // Agregar nuevo turno
+    turnos.push(turno);
+    
+    // Guardar en localStorage
+    localStorage.setItem('turnosPublicos', JSON.stringify(turnos));
+    
+    console.log('Turno guardado:', turno);
+    
+    // Recargar la lista de turnos
+    cargarTurnosDia();
+    cargarTurnosSemana();
+}
 
 // Cerrar modal
 document.querySelectorAll('.close').forEach(closeBtn => {
@@ -89,15 +111,6 @@ window.addEventListener('click', function(e) {
 const today = new Date();
 const formattedDate = today.toISOString().split('T')[0];
 document.getElementById('fecha').min = formattedDate;
-
-// Simulación de envío de datos al backend Python
-function enviarDatosAlBackend(datosTurno) {
-    // En una implementación real, usaríamos fetch o axios para enviar los datos
-    // al backend Python
-    
-    // Por ahora, solo mostramos los datos en consola
-    console.log('Datos del turno:', datosTurno);
-}
 
 // ================= SISTEMA DE ADMINISTRACIÓN =================
 
@@ -139,7 +152,7 @@ let clientes = JSON.parse(localStorage.getItem('clientes')) || [
     }
 ];
 
-let turnos = JSON.parse(localStorage.getItem('turnos')) || [
+let turnosAdmin = JSON.parse(localStorage.getItem('turnosAdmin')) || [
     { id: 1, clienteId: 1, mascotaId: 1, fecha: new Date().toISOString().split('T')[0], hora: "10:00", servicio: "Peluquería" },
     { id: 2, clienteId: 2, mascotaId: 2, fecha: new Date().toISOString().split('T')[0], hora: "11:00", servicio: "Consulta Veterinaria" }
 ];
@@ -147,7 +160,7 @@ let turnos = JSON.parse(localStorage.getItem('turnos')) || [
 // Guardar datos en localStorage
 function guardarDatos() {
     localStorage.setItem('clientes', JSON.stringify(clientes));
-    localStorage.setItem('turnos', JSON.stringify(turnos));
+    localStorage.setItem('turnosAdmin', JSON.stringify(turnosAdmin));
 }
 
 // Formulario de cliente
@@ -238,7 +251,7 @@ document.getElementById('formTurnoAdmin').addEventListener('submit', function(e)
     }
     
     const nuevoTurno = {
-        id: turnos.length > 0 ? Math.max(...turnos.map(t => t.id)) + 1 : 1,
+        id: turnosAdmin.length > 0 ? Math.max(...turnosAdmin.map(t => t.id)) + 1 : 1,
         clienteId: clienteId,
         mascotaId: mascotaId,
         fecha: fecha,
@@ -246,7 +259,7 @@ document.getElementById('formTurnoAdmin').addEventListener('submit', function(e)
         servicio: "Peluquería" // Por defecto
     };
     
-    turnos.push(nuevoTurno);
+    turnosAdmin.push(nuevoTurno);
     this.reset();
     mostrarMensaje('Turno agendado exitosamente');
     guardarDatos();
@@ -339,36 +352,73 @@ function cargarMascotasCliente() {
 
 function cargarTurnosDia() {
     const fecha = document.getElementById('consultaFecha').value || new Date().toISOString().split('T')[0];
-    const turnosDia = turnos.filter(t => t.fecha === fecha);
     const listaTurnos = document.getElementById('listaTurnosAdmin');
     
     listaTurnos.innerHTML = '';
     
-    if (turnosDia.length === 0) {
+    // Obtener turnos públicos
+    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    
+    // Obtener turnos del administrador
+    const turnosDelDiaAdmin = turnosAdmin.filter(t => t.fecha === fecha);
+    
+    // Combinar y filtrar turnos públicos del día
+    const turnosDelDiaPublicos = turnosPublicos.filter(t => t.fecha === fecha);
+    
+    // Combinar todos los turnos del día
+    const todosLosTurnosDelDia = [...turnosDelDiaAdmin, ...turnosDelDiaPublicos];
+    
+    if (todosLosTurnosDelDia.length === 0) {
         listaTurnos.innerHTML = '<div class="turno-item">No hay turnos para esta fecha</div>';
         return;
     }
     
-    turnosDia.forEach(turno => {
-        const cliente = clientes.find(c => c.id === turno.clienteId);
-        const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+    // Ordenar por hora
+    todosLosTurnosDelDia.sort((a, b) => a.hora.localeCompare(b.hora));
+    
+    todosLosTurnosDelDia.forEach(turno => {
+        let turnoElement;
         
-        if (!cliente || !mascota) return;
+        if (turno.clienteId) {
+            // Turno del administrador (con cliente registrado)
+            const cliente = clientes.find(c => c.id === turno.clienteId);
+            const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+            
+            if (!cliente || !mascota) return;
+            
+            turnoElement = document.createElement('div');
+            turnoElement.className = 'turno-item';
+            turnoElement.innerHTML = `
+                <div class="turno-info">
+                    <h4>${cliente.nombre} ${cliente.apellido}</h4>
+                    <p>${mascota.nombre} (${mascota.tipo}) - ${turno.hora}</p>
+                    <small>${turno.servicio}</small>
+                </div>
+                <div class="turno-actions">
+                    <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
+                        <i class="fas fa-trash"></i> Cancelar
+                    </button>
+                </div>
+            `;
+        } else {
+            // Turno público
+            turnoElement = document.createElement('div');
+            turnoElement.className = 'turno-item';
+            turnoElement.innerHTML = `
+                <div class="turno-info">
+                    <h4>${turno.nombre}</h4>
+                    <p>${turno.mascota} - ${turno.hora}</p>
+                    <small>${turno.servicio}</small>
+                    <p class="turno-contacto">📞 ${turno.telefono} | ✉️ ${turno.email}</p>
+                </div>
+                <div class="turno-actions">
+                    <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
+                        <i class="fas fa-trash"></i> Cancelar
+                    </button>
+                </div>
+            `;
+        }
         
-        const turnoElement = document.createElement('div');
-        turnoElement.className = 'turno-item';
-        turnoElement.innerHTML = `
-            <div class="turno-info">
-                <h4>${cliente.nombre} ${cliente.apellido}</h4>
-                <p>${mascota.nombre} (${mascota.tipo}) - ${turno.hora}</p>
-                <small>${turno.servicio}</small>
-            </div>
-            <div class="turno-actions">
-                <button class="action-btn btn-delete" onclick="eliminarTurno(${turno.id})">
-                    <i class="fas fa-trash"></i> Cancelar
-                </button>
-            </div>
-        `;
         listaTurnos.appendChild(turnoElement);
     });
 }
@@ -382,20 +432,31 @@ function cargarTurnosSemana() {
     const listaTurnos = document.getElementById('listaTurnosSemana');
     listaTurnos.innerHTML = '';
     
+    // Obtener turnos públicos
+    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    
     // Filtramos turnos de la semana seleccionada
-    const turnosSemana = turnos.filter(t => {
+    const turnosSemanaAdmin = turnosAdmin.filter(t => {
         const fechaTurno = new Date(t.fecha);
         return fechaTurno >= fechaInicioObj && fechaTurno <= fechaFinObj;
     });
     
-    if (turnosSemana.length === 0) {
+    const turnosSemanaPublicos = turnosPublicos.filter(t => {
+        const fechaTurno = new Date(t.fecha);
+        return fechaTurno >= fechaInicioObj && fechaTurno <= fechaFinObj;
+    });
+    
+    // Combinar todos los turnos
+    const todosLosTurnosSemana = [...turnosSemanaAdmin, ...turnosSemanaPublicos];
+    
+    if (todosLosTurnosSemana.length === 0) {
         listaTurnos.innerHTML = '<div class="turno-item">No hay turnos para esta semana</div>';
         return;
     }
     
     // Agrupar turnos por fecha
     const turnosPorFecha = {};
-    turnosSemana.forEach(turno => {
+    todosLosTurnosSemana.forEach(turno => {
         if (!turnosPorFecha[turno.fecha]) {
             turnosPorFecha[turno.fecha] = [];
         }
@@ -409,29 +470,60 @@ function cargarTurnosSemana() {
         fechaElement.innerHTML = `<h4>${formatearFecha(fecha)}</h4>`;
         listaTurnos.appendChild(fechaElement);
         
+        // Ordenar turnos por hora
+        turnosPorFecha[fecha].sort((a, b) => a.hora.localeCompare(b.hora));
+        
         turnosPorFecha[fecha].forEach(turno => {
-            const cliente = clientes.find(c => c.id === turno.clienteId);
-            const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+            let turnoElement;
             
-            if (!cliente || !mascota) return;
+            if (turno.clienteId) {
+                // Turno del administrador
+                const cliente = clientes.find(c => c.id === turno.clienteId);
+                const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+                
+                if (!cliente || !mascota) return;
+                
+                turnoElement = document.createElement('div');
+                turnoElement.className = 'turno-item';
+                turnoElement.innerHTML = `
+                    <div class="turno-info">
+                        <p><strong>${cliente.nombre} ${cliente.apellido}</strong> - ${mascota.nombre} (${mascota.tipo})</p>
+                        <p>${turno.hora} - ${turno.servicio}</p>
+                    </div>
+                `;
+            } else {
+                // Turno público
+                turnoElement = document.createElement('div');
+                turnoElement.className = 'turno-item';
+                turnoElement.innerHTML = `
+                    <div class="turno-info">
+                        <p><strong>${turno.nombre}</strong> - ${turno.mascota}</p>
+                        <p>${turno.hora} - ${turno.servicio}</p>
+                        <p class="turno-contacto">📞 ${turno.telefono}</p>
+                    </div>
+                `;
+            }
             
-            const turnoElement = document.createElement('div');
-            turnoElement.className = 'turno-item';
-            turnoElement.innerHTML = `
-                <div class="turno-info">
-                    <p><strong>${cliente.nombre} ${cliente.apellido}</strong> - ${mascota.nombre} (${mascota.tipo})</p>
-                    <p>${turno.hora} - ${turno.servicio}</p>
-                </div>
-            `;
             listaTurnos.appendChild(turnoElement);
         });
     });
 }
 
-function eliminarTurno(id) {
+function eliminarTurnoAdmin(id) {
     if (confirm('¿Está seguro de que desea cancelar este turno?')) {
-        turnos = turnos.filter(t => t.id !== id);
+        turnosAdmin = turnosAdmin.filter(t => t.id !== id);
         guardarDatos();
+        cargarTurnosDia();
+        cargarTurnosSemana();
+        mostrarMensaje('Turno cancelado exitosamente');
+    }
+}
+
+function eliminarTurnoPublico(id) {
+    if (confirm('¿Está seguro de que desea cancelar este turno?')) {
+        let turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+        turnosPublicos = turnosPublicos.filter(t => t.id !== id);
+        localStorage.setItem('turnosPublicos', JSON.stringify(turnosPublicos));
         cargarTurnosDia();
         cargarTurnosSemana();
         mostrarMensaje('Turno cancelado exitosamente');

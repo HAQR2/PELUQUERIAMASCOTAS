@@ -44,8 +44,9 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
         return;
     }
     
-    // En una implementación real, aquí enviaríamos los datos al servidor Python
-    const datosTurno = {
+    // Crear objeto de turno
+    const turno = {
+        id: Date.now(), // ID único basado en timestamp
         nombre: nombre,
         email: email,
         telefono: telefono,
@@ -53,10 +54,13 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
         servicio: servicio,
         fecha: fecha,
         hora: hora,
-        mensaje: document.getElementById('mensaje').value
+        mensaje: document.getElementById('mensaje').value,
+        tipo: 'publico', // Para identificar que viene del formulario público
+        fechaCreacion: new Date().toISOString()
     };
     
-    enviarDatosAlBackend(datosTurno);
+    // Guardar turno en localStorage
+    guardarTurno(turno);
     
     // Mostrar modal de confirmación
     document.getElementById('confirmationModal').style.display = 'block';
@@ -64,6 +68,20 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
     // Limpiar formulario
     document.getElementById('turnoForm').reset();
 });
+
+// Función para guardar turno en localStorage
+function guardarTurno(turno) {
+    // Obtener turnos existentes
+    let turnos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    
+    // Agregar nuevo turno
+    turnos.push(turno);
+    
+    // Guardar en localStorage
+    localStorage.setItem('turnosPublicos', JSON.stringify(turnos));
+    
+    console.log('Turno guardado:', turno);
+}
 
 // Cerrar modal
 document.querySelector('.close').addEventListener('click', function() {
@@ -86,36 +104,6 @@ window.addEventListener('click', function(e) {
 const today = new Date();
 const formattedDate = today.toISOString().split('T')[0];
 document.getElementById('fecha').min = formattedDate;
-
-// Simulación de envío de datos al backend Python
-function enviarDatosAlBackend(datosTurno) {
-    // En una implementación real, usaríamos fetch o axios para enviar los datos
-    // al backend Python
-    
-    // Ejemplo con fetch:
-    /*
-    fetch('/api/turnos', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(datosTurno)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        // Mostrar modal de confirmación
-        document.getElementById('confirmationModal').style.display = 'block';
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        alert('Hubo un error al enviar el formulario. Por favor, intente nuevamente.');
-    });
-    */
-    
-    // Por ahora, solo mostramos los datos en consola
-    console.log('Datos del turno:', datosTurno);
-}
 
 // Efecto de aparición al hacer scroll
 const observerOptions = {
