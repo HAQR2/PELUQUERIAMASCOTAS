@@ -26,92 +26,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Sistema de turnos público
-document.getElementById('turnoForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Validación básica
-    const nombre = document.getElementById('nombre').value;
-    const email = document.getElementById('email').value;
-    const telefono = document.getElementById('telefono').value;
-    const mascota = document.getElementById('mascota').value;
-    const servicio = document.getElementById('servicio').value;
-    const fecha = document.getElementById('fecha').value;
-    const hora = document.getElementById('hora').value;
-    
-    if (!nombre || !email || !telefono || !mascota || !servicio || !fecha || !hora) {
-        alert('Por favor, complete todos los campos obligatorios.');
-        return;
-    }
-    
-    // Crear objeto de turno
-    const turno = {
-        id: Date.now(), // ID único basado en timestamp
-        nombre: nombre,
-        email: email,
-        telefono: telefono,
-        mascota: mascota,
-        servicio: servicio,
-        fecha: fecha,
-        hora: hora,
-        mensaje: document.getElementById('mensaje').value,
-        tipo: 'publico', // Para identificar que viene del formulario público
-        fechaCreacion: new Date().toISOString()
-    };
-    
-    // Guardar turno en localStorage
-    guardarTurno(turno);
-    
-    // Mostrar modal de confirmación
-    document.getElementById('confirmationModal').style.display = 'block';
-    
-    // Limpiar formulario
-    document.getElementById('turnoForm').reset();
-});
-
-// Función para guardar turno en localStorage
-function guardarTurno(turno) {
-    // Obtener turnos existentes
-    let turnos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-    
-    // Agregar nuevo turno
-    turnos.push(turno);
-    
-    // Guardar en localStorage
-    localStorage.setItem('turnosPublicos', JSON.stringify(turnos));
-    
-    console.log('Turno guardado:', turno);
-    
-    // Recargar la lista de turnos
-    cargarTurnosDia();
-    cargarTurnosSemana();
-}
-
-// Cerrar modal
-document.querySelectorAll('.close').forEach(closeBtn => {
-    closeBtn.addEventListener('click', function() {
-        this.closest('.modal').style.display = 'none';
-    });
-});
-
-document.getElementById('modalClose').addEventListener('click', function() {
-    document.getElementById('confirmationModal').style.display = 'none';
-});
-
-// Cerrar modal al hacer clic fuera de él
-window.addEventListener('click', function(e) {
-    document.querySelectorAll('.modal').forEach(modal => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-});
-
-// Configurar fecha mínima como hoy
-const today = new Date();
-const formattedDate = today.toISOString().split('T')[0];
-document.getElementById('fecha').min = formattedDate;
-
 // ================= SISTEMA DE ADMINISTRACIÓN =================
 
 // Funcionalidad de pestañas
@@ -242,11 +156,13 @@ document.getElementById('formTurnoAdmin').addEventListener('submit', function(e)
     
     const clienteId = parseInt(document.getElementById('turnoClienteId').value);
     const mascotaId = parseInt(document.getElementById('turnoMascotaId').value);
+    const servicio = document.getElementById('turnoServicio').value;
     const fecha = document.getElementById('turnoFecha').value;
     const hora = document.getElementById('turnoHora').value;
+    const mensaje = document.getElementById('turnoMensaje').value;
     
-    if (!clienteId || !mascotaId || !fecha || !hora) {
-        mostrarMensaje('Por favor, complete todos los campos');
+    if (!clienteId || !mascotaId || !servicio || !fecha || !hora) {
+        mostrarMensaje('Por favor, complete todos los campos obligatorios');
         return;
     }
     
@@ -254,9 +170,10 @@ document.getElementById('formTurnoAdmin').addEventListener('submit', function(e)
         id: turnosAdmin.length > 0 ? Math.max(...turnosAdmin.map(t => t.id)) + 1 : 1,
         clienteId: clienteId,
         mascotaId: mascotaId,
+        servicio: servicio,
         fecha: fecha,
         hora: hora,
-        servicio: "Peluquería" // Por defecto
+        mensaje: mensaje
     };
     
     turnosAdmin.push(nuevoTurno);
@@ -390,9 +307,18 @@ function cargarTurnosDia() {
             turnoElement.className = 'turno-item';
             turnoElement.innerHTML = `
                 <div class="turno-info">
-                    <h4>${cliente.nombre} ${cliente.apellido}</h4>
-                    <p>${mascota.nombre} (${mascota.tipo}) - ${turno.hora}</p>
-                    <small>${turno.servicio}</small>
+                    <div class="turno-header">
+                        <strong>${cliente.nombre} ${cliente.apellido}</strong>
+                        <span class="turno-hora">${turno.hora}</span>
+                    </div>
+                    <p><i class="fas fa-paw"></i> ${mascota.nombre} (${mascota.tipo})</p>
+                    <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
+                    ${turno.mensaje ? `
+                        <div class="turno-mensaje">
+                            <strong><i class="fas fa-comment"></i> Mensaje:</strong>
+                            <p>${turno.mensaje}</p>
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="turno-actions">
                     <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
@@ -406,10 +332,22 @@ function cargarTurnosDia() {
             turnoElement.className = 'turno-item';
             turnoElement.innerHTML = `
                 <div class="turno-info">
-                    <h4>${turno.nombre}</h4>
-                    <p>${turno.mascota} - ${turno.hora}</p>
-                    <small>${turno.servicio}</small>
-                    <p class="turno-contacto">📞 ${turno.telefono} | ✉️ ${turno.email}</p>
+                    <div class="turno-header">
+                        <strong>${turno.nombre}</strong>
+                        <span class="turno-hora">${turno.hora}</span>
+                    </div>
+                    <p><i class="fas fa-paw"></i> ${turno.mascota}</p>
+                    <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
+                    <p class="turno-contacto">
+                        <i class="fas fa-phone"></i> ${turno.telefono} 
+                        | <i class="fas fa-envelope"></i> ${turno.email}
+                    </p>
+                    ${turno.mensaje ? `
+                        <div class="turno-mensaje">
+                            <strong><i class="fas fa-comment"></i> Mensaje adicional:</strong>
+                            <p>${turno.mensaje}</p>
+                        </div>
+                    ` : ''}
                 </div>
                 <div class="turno-actions">
                     <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
@@ -517,7 +455,7 @@ function cargarTurnosSemana() {
                                     <span class="turno-hora">${turno.hora}</span>
                                 </div>
                                 <p><i class="fas fa-paw"></i> ${mascota.nombre} (${mascota.tipo})</p>
-                                <p><i class="fas fa-concierge-bell"></i> ${turno.servicio || 'Servicio no especificado'}</p>
+                                <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
                                 ${turno.mensaje ? `
                                     <div class="turno-mensaje">
                                         <strong><i class="fas fa-comment"></i> Mensaje:</strong>
@@ -571,8 +509,18 @@ function cargarTurnosSemana() {
 
 function eliminarTurnoAdmin(id) {
     if (confirm('¿Está seguro de que desea cancelar este turno?')) {
-        turnosAdmin = turnosAdmin.filter(t => t.id !== id);
-        guardarDatos();
+        // Buscar en turnosAdmin
+        const turnoIndex = turnosAdmin.findIndex(t => t.id === id);
+        if (turnoIndex !== -1) {
+            turnosAdmin.splice(turnoIndex, 1);
+            guardarDatos();
+        } else {
+            // Si no está en turnosAdmin, buscar en turnos públicos
+            let turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+            turnosPublicos = turnosPublicos.filter(t => t.id !== id);
+            localStorage.setItem('turnosPublicos', JSON.stringify(turnosPublicos));
+        }
+        
         cargarTurnosDia();
         cargarTurnosSemana();
         mostrarMensaje('Turno cancelado exitosamente');
@@ -599,6 +547,11 @@ function formatearFecha(fecha) {
         day: 'numeric' 
     };
     return fechaObj.toLocaleDateString('es-ES', opciones);
+}
+
+function mostrarMensaje(mensaje) {
+    // En una implementación real, usaríamos un sistema de notificaciones
+    alert(mensaje);
 }
 
 function actualizarSelectClientes() {
@@ -641,11 +594,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Configurar fecha de la semana (lunes de la semana actual)
+    // Configurar fecha de la semana (hoy por defecto)
     const hoy = new Date();
-    const lunes = new Date(hoy);
-    lunes.setDate(hoy.getDate() - hoy.getDay() + 1); // +1 porque getDay() devuelve 0 para domingo
-    document.getElementById('consultaSemana').value = lunes.toISOString().split('T')[0];
+    document.getElementById('consultaSemana').value = hoy.toISOString().split('T')[0];
 });
 
 // Efecto de aparición al hacer scroll

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCare - Centro de Cuidado para Mascotas</title>
+    <title>PetCare - Panel de Administración</title>
     <link rel="stylesheet" href="css/administrar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -17,10 +17,9 @@
                     <li><a href="/frontend/principal.html">Inicio</a></li>
                     <li><a href="/frontend/principal.html#servicios">Servicios</a></li>
                     <li><a href="/frontend/principal.html#productos">Productos</a></li>
-                    <li><a href="#turnos">Agendar Turno</a></li>
                     <li><a href="/frontend/principal.html#testimonios">Testimonios</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
-                    <li><a href="/frontend/administrar.html">Administración</a></li>
+                    <li><a href="/frontend/principal.html#contacto">Contacto</a></li>
+                    <li><a href="/frontend/admin.html">Administración</a></li>
                 </ul>
             </nav>
             <div class="mobile-menu">
@@ -28,93 +27,6 @@
             </div>
         </div>
     </header>
-
-    
-
-    <!-- Sistema de Turnos -->
-    <section class="appointment" id="turnos">
-        <div class="container">
-            <div class="section-title">
-                <h2>Agendar Turno</h2>
-                <p>Programa una cita para cualquiera de nuestros servicios.</p>
-            </div>
-            <div class="appointment-container">
-                <div class="appointment-form">
-                    <form id="turnoForm">
-                        <div class="form-group">
-                            <label for="nombre">Nombre completo</label>
-                            <input type="text" id="nombre" name="nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="telefono">Teléfono</label>
-                            <input type="tel" id="telefono" name="telefono" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="mascota">Tipo de mascota</label>
-                            <select id="mascota" name="mascota" required>
-                                <option value="">Seleccione una opción</option>
-                                <option value="perro">Perro</option>
-                                <option value="gato">Gato</option>
-                                <option value="otro">Otro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="servicio">Servicio solicitado</label>
-                            <select id="servicio" name="servicio" required>
-                                <option value="">Seleccione un servicio</option>
-                                <option value="peluqueria">Peluquería</option>
-                                <option value="veterinaria">Consulta Veterinaria</option>
-                                <option value="guarderia">Guardería</option>
-                                <option value="adiestramiento">Adiestramiento</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="fecha">Fecha preferida</label>
-                            <input type="date" id="fecha" name="fecha" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="hora">Hora preferida</label>
-                            <select id="hora" name="hora" required>
-                                <option value="">Seleccione una hora</option>
-                                <option value="09:00">09:00 AM</option>
-                                <option value="10:00">10:00 AM</option>
-                                <option value="11:00">11:00 AM</option>
-                                <option value="12:00">12:00 PM</option>
-                                <option value="14:00">02:00 PM</option>
-                                <option value="15:00">03:00 PM</option>
-                                <option value="16:00">04:00 PM</option>
-                                <option value="17:00">05:00 PM</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="mensaje">Mensaje adicional (opcional)</label>
-                            <textarea id="mensaje" name="mensaje" rows="4"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-full">Agendar Turno</button>
-                    </form>
-                </div>
-                <div class="appointment-info">
-                    <h3>Información importante</h3>
-                    <ul>
-                        <li><i class="fas fa-check-circle"></i> Confirmaremos tu turno por email o teléfono</li>
-                        <li><i class="fas fa-check-circle"></i> Llega 10 minutos antes de tu cita</li>
-                        <li><i class="fas fa-check-circle"></i> Trae el carnet de vacunación de tu mascota</li>
-                        <li><i class="fas fa-check-circle"></i> Cancelaciones con 24 horas de anticipación</li>
-                    </ul>
-                    <div class="contact-info">
-                        <h4>Contacto directo</h4>
-                        <p><i class="fas fa-phone"></i> +54 11 23439193</p>
-                        <p><i class="fas fa-envelope"></i> turnos@petcare.com.ar</p>
-                        <p><i class="fas fa-map-marker-alt"></i> Calle Mascotas 123, Capital Federal</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Sistema de Administración -->
     <section class="administration" id="administracion">
@@ -236,12 +148,33 @@
                                             </select>
                                         </div>
                                         <div class="form-group">
+                                            <label class="form-label">Servicio</label>
+                                            <select class="form-select" id="turnoServicio" required>
+                                                <option value="">Seleccione un servicio</option>
+                                                <option value="peluqueria">Peluquería</option>
+                                                <option value="veterinaria">Consulta Veterinaria</option>
+                                                <option value="guarderia">Guardería</option>
+                                                <option value="adiestramiento">Adiestramiento</option>
+                                                <option value="paseos">Paseos</option>
+                                                <option value="Vacunas">Vacunas</option>
+                                                <option value="Atencion al bienestar">Atencion al bienestar</option>
+                                                <option value="Cuidado Dental">Cuidado Dental</option>
+                                                <option value="Atencion de Emergencia">Atencion de emergencia</option>
+                                                <option value="Microchip">Microchip</option>
+                                                <option value="Telemedicina">Telemedicina</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="form-label">Fecha</label>
                                             <input type="date" class="form-control" id="turnoFecha" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Hora</label>
                                             <input type="time" class="form-control" id="turnoHora" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Mensaje adicional (opcional)</label>
+                                            <textarea class="form-control" id="turnoMensaje" rows="3"></textarea>
                                         </div>
                                         <button type="submit" class="btn btn-full">
                                             <i class="fas fa-calendar-check"></i> Agendar Turno
@@ -314,12 +247,11 @@
                 <div class="footer-col">
                     <h3>Enlaces Rápidos</h3>
                     <ul>
-                        <li><a href="#inicio">Inicio</a></li>
-                        <li><a href="#servicios">Servicios</a></li>
-                        <li><a href="#productos">Productos</a></li>
-                        <li><a href="#turnos">Agendar Turno</a></li>
-                        <li><a href="#administracion">Administración</a></li>
-                        <li><a href="#testimonios">Testimonios</a></li>
+                        <li><a href="/frontend/principal.html">Inicio</a></li>
+                        <li><a href="/frontend/principal.html#servicios">Servicios</a></li>
+                        <li><a href="/frontend/principal.html#productos">Productos</a></li>
+                        <li><a href="/frontend/principal.html#turnos">Agendar Turno</a></li>
+                        <li><a href="/frontend/principal.html#testimonios">Testimonios</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -347,18 +279,6 @@
             </div>
         </div>
     </footer>
-    <!-- Modal de confirmación -->
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="modal-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>¡Turno Agendado!</h3>
-            <p>Tu turno ha sido agendado exitosamente. Te contactaremos pronto para confirmar los detalles.</p>
-            <button id="modalClose" class="btn">Aceptar</button>
-        </div>
-    </div>
 
     <script src="admin.js"></script>
 </body>
