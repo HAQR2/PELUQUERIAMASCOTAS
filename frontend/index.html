@@ -3,304 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reservas - Peluquería de Mascotas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/style.css">
-    
+    <title>PetCare - Centro de Cuidado para Mascotas</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark mb-4">
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="#" class="logo">Pet<span>Care</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#servicios">Servicios</a></li>
+                    <li><a href="#productos">Productos</a></li>
+                    <li><a href="#turnos">Agendar Turno</a></li>
+                    <li><a href="#testimonios">Testimonios</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                    <!-- <li><a href="admin.html">Administración</a></li> -->
+                </ul>
+            </nav>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h1>El mejor cuidado para tu mascota</h1>
+                <p>En PetCare ofrecemos servicios de calidad para el bienestar de tu mascota. Desde peluquería hasta veterinaria, tenemos todo lo que necesitas.</p>
+                <a href="#turnos" class="btn">Agendar Turno</a>
+                <a href="#servicios" class="btn btn-secondary">Nuestros Servicios</a>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Perro feliz">
+            </div>
+        </div>
+    </section>
+
+    <!-- Servicios - Actualizado según la captura -->
+<section class="services" id="servicios">
+    <div class="container services-container">
+        <div class="services-content">
+            <div class="section-title">
+                <h2>Nuestros Servicios</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna.<br>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            <div class="divider"></div>
+            <div class="services-cta">
+                <h3>Reservar una Cita</h3>
+                <a href="#turnos" class="btn">Agendar Turno</a>
+            </div>
+        </div>
+        <div class="services-image">
+            <img src="img/photo-5.avif" alt="Servicios para mascotas">
+        </div>
+    </div>
+</section>
+
+    <!-- Productos -->
+    <section class="products" id="productos">
         <div class="container">
-            <span class="navbar-brand mb-0 h1">
-                <i class="bi bi-scissors"></i> Peluquería de Mascotas
-            </span>
-        </div>
-    </nav>
-
-    <div class="container">
-        <!-- Pestañas de navegación -->
-        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">
-                    <i class="bi bi-people"></i> Clientes
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="turnos-tab" data-bs-toggle="tab" data-bs-target="#turnos" type="button">
-                    <i class="bi bi-calendar-check"></i> Turnos
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="consultas-tab" data-bs-toggle="tab" data-bs-target="#consultas" type="button">
-                    <i class="bi bi-search"></i> Consultas
-                </button>
-            </li>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalClientes">Administrar Clientes
-        </button>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <!-- TAB CLIENTES -->
-            <div class="tab-pane fade show active" id="clientes" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="bi bi-person-plus"></i> Nuevo Cliente
-                            </div>
-                            <div class="card-body">
-                                <form id="formCliente">
-                                    <div class="mb-3">
-                                        <label class="form-label">Nombre</label>
-                                        <input type="text" class="form-control" id="clienteNombre" required maxlength="15">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Apellido</label>
-                                        <input type="text" class="form-control" id="clienteApellido" required maxlength="15">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Teléfono</label>
-                                        <input type="tel" class="form-control" id="clienteTelefono" required maxlength="15">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Correo</label>
-                                        <input type="email" class="form-control" id="clienteCorreo" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-save"></i> Guardar Cliente
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Agregar Mascota -->
-                        <div class="card" id="cardMascota" style="display:none;">
-                            <div class="card-header">
-                                <i class="bi bi-heart"></i> Agregar Mascota
-                            </div>
-                            <div class="card-body">
-                                <form id="formMascota">
-                                    <input type="hidden" id="mascotaClienteId">
-                                    <div class="mb-3">
-                                        <label class="form-label">Nombre de la mascota</label>
-                                        <input type="text" class="form-control" id="mascotaNombre" required maxlength="15">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipo</label>
-                                        <select class="form-select" id="mascotaTipo" required>
-                                            <option value="">Seleccione...</option>
-                                            <option value="Perro">Perro</option>
-                                            <option value="Gato">Gato</option>
-                                            <option value="Otro">Otro</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-save"></i> Agregar Mascota
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+            <div class="section-title">
+                <h2>Productos Destacados</h2>
+                <p>Encuentra los mejores productos para el cuidado y entretenimiento de tu mascota.</p>
+            </div>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="img/photo-2.avif" alt="Alimento para mascotas">
                     </div>
-
-                    <div class="col-md-7">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="bi bi-search"></i> Buscar Cliente
-                            </div>
-                            <div class="card-body">
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" id="buscarCliente" placeholder="Buscar por nombre...">
-                                    <button class="btn btn-primary" onclick="buscarClientes()">
-                                        <i class="bi bi-search"></i> Buscar
-                                    </button>
-                                </div>
-                                <div id="listaClientes"></div>
-                            </div>
-                        </div>
+                    <div class="product-content">
+                        <h3>Alimento para Perros Premium</h3>
+                        <p>Nutrición balanceada para todas las razas.</p>
+                        <div class="product-price">$25.99</div>
+                        <a href="#" class="btn">Comprar</a>
                     </div>
                 </div>
-            </div>
-
-            <!-- TAB TURNOS -->
-            <div class="tab-pane fade" id="turnos" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="bi bi-calendar-plus"></i> Agendar Turno
-                            </div>
-                            <div class="card-body">
-                                <form id="formTurno">
-                                    <div class="mb-3">
-                                        <label class="form-label">Cliente</label>
-                                        <select class="form-select" id="turnoClienteId" required onchange="cargarMascotasCliente()">
-                                            <option value="">Seleccione un cliente...</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Mascota</label>
-                                        <select class="form-select" id="turnoMascotaId">
-                                            <option value="">Seleccione una mascota...</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Fecha</label>
-                                        <input type="date" class="form-control" id="turnoFecha" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Hora</label>
-                                        <input type="time" class="form-control" id="turnoHora" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-calendar-check"></i> Agendar Turno
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="img/photo-3.avif" alt="Juguete para gatos">
                     </div>
-
-                    <div class="col-md-7">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="bi bi-calendar3"></i> Turnos del Día
-                            </div>
-                            <div class="card-body">
-                                <div class="input-group mb-3">
-                                    <input type="date" class="form-control" id="consultaFecha">
-                                    <button class="btn btn-primary" onclick="cargarTurnosDia()">
-                                        <i class="bi bi-search"></i> Buscar
-                                    </button>
-                                </div>
-                                <div class="loading" id="loadingTurnos">
-                                    <div class="spinner-border text-primary" role="status"></div>
-                                </div>
-                                <div id="listaTurnos"></div>
-                            </div>
-                        </div>
+                    <div class="product-content">
+                        <h3>Juguete Interactivo para Gatos</h3>
+                        <p>Mantén a tu gato entretenido por horas.</p>
+                        <div class="product-price">$12.50</div>
+                        <a href="#" class="btn">Comprar</a>
                     </div>
                 </div>
-            </div>
-
-            <!-- TAB CONSULTAS -->
-            <div class="tab-pane fade" id="consultas" role="tabpanel">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="bi bi-calendar-week"></i> Turnos de la Semana
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="img/photo-4.avif" alt="Cama para mascotas">
                     </div>
-                    <div class="card-body">
-                        <div class="input-group mb-3">
-                            <input type="date" class="form-control" id="consultaSemana">
-                            <button class="btn btn-primary" onclick="cargarTurnosSemana()">
-                                <i class="bi bi-search"></i> Ver Semana
-                            </button>
-                        </div>
-                        <div class="loading" id="loadingSemana">
-                            <div class="spinner-border text-primary" role="status"></div>
-                        </div>
-                        <div id="listaTurnosSemana"></div>
+                    <div class="product-content">
+                        <h3>Cama Ortopédica para Mascotas</h3>
+                        <p>Comodidad y soporte para articulaciones.</p>
+                        <div class="product-price">$45.00</div>
+                        <a href="#" class="btn">Comprar</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="img/photo-5.png" alt="Correa para perros">
+                    </div>
+                    <div class="product-content">
+                        <h3>Correa Retráctil para Paseos</h3>
+                        <p>Libertad controlada durante los paseos.</p>
+                        <div class="product-price">$18.75</div>
+                        <a href="#" class="btn">Comprar</a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Toast de notificaciones -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="toast" class="toast" role="alert">
-            <div class="toast-header">
-                <strong class="me-auto">Notificación</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    <!-- Sistema de Turnos -->
+    <section class="appointment" id="turnos">
+        <div class="container">
+            <div class="section-title">
+                <h2>Agendar Turno</h2>
+                <p>Programa una cita para cualquiera de nuestros servicios.</p>
             </div>
-            <div class="toast-body" id="toastMessage"></div>
+            <div class="appointment-container">
+                <div class="appointment-form">
+                    <form id="turnoForm">
+                        <div class="form-group">
+                            <label for="nombre">Nombre completo</label>
+                            <input type="text" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mascota">Tipo de mascota</label>
+                            <select id="mascota" name="mascota" required>
+                                <option value="">Seleccione una opción</option>
+                                <option value="perro">Perro</option>
+                                <option value="gato">Gato</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="servicio">Servicio solicitado</label>
+                            <select id="servicio" name="servicio" required>
+                                <option value="">Seleccione un servicio</option>
+                                <option value="peluqueria">Peluquería</option>                                
+                                <option value="veterinaria">Consulta Veterinaria</option>
+                                <option value="guarderia">Guardería</option>
+                                <option value="adiestramiento">Adiestramiento</option>
+                                <option value="paseos">Paseos</option>
+                                <option value="otros">Otros</option>
+                                <option value="Vacunas">Vacunas</option>
+                                <option value="Atencion al bienestar">Atencion al bienestar</option>
+                                <option value="Cuidado Dental">Cuidado Dental</option>
+                                <option value="Atencion de Emergencia">Atencion de emergencia</option>
+                                <option value="Microchip">Microchip</option>
+                                <option value="Telemedicina">Telemedicina</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha">Fecha preferida</label>
+                            <input type="date" id="fecha" name="fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="hora">Hora preferida</label>
+                            <select id="hora" name="hora" required>
+                                <option value="">Seleccione una hora</option>
+                                <!-- Las opciones se generarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="mensaje">Mensaje adicional (opcional)</label>
+                            <textarea id="mensaje" name="mensaje" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-full">Agendar Turno</button>
+                    </form>
+                </div>
+                <div class="appointment-info">
+                    <h3>Información importante</h3>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Confirmaremos tu turno por email o teléfono</li>
+                        <li><i class="fas fa-check-circle"></i> Llega 10 minutos antes de tu cita</li>
+                        <li><i class="fas fa-check-circle"></i> Trae el carnet de vacunación de tu mascota</li>
+                        <li><i class="fas fa-check-circle"></i> Cancelaciones con 24 horas de anticipación</li>
+                    </ul>
+                    <div class="contact-info">
+                        <h4>Contacto directo</h4>
+                        <p><i class="fas fa-phone"></i> +54 11 23439193</p>
+                        <p><i class="fas fa-envelope"></i> turnos@petcare.com.ar</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Calle Mascotas 123, Capital Federal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonios -->
+    <section class="testimonials" id="testimonios">
+        <div class="container">
+            <div class="section-title">
+                <h2>Lo que dicen nuestros clientes</h2>
+                <p>Conoce las experiencias de otros dueños de mascotas con nuestros servicios.</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "Llevo a mi perro Rocky aquí desde hace más de un año y siempre recibe el mejor trato. Los servicios de peluquería son excelentes y el personal es muy amable."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="María González">
+                        </div>
+                        <div class="author-info">
+                            <h4>María González</h4>
+                            <p>Dueña de Rocky</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "El servicio veterinario es de primera calidad. Diagnosticaron correctamente a mi gata Luna y el tratamiento fue efectivo. Muy recomendable."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Carlos Rodríguez">
+                        </div>
+                        <div class="author-info">
+                            <h4>Carlos Rodríguez</h4>
+                            <p>Dueño de Luna</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "La guardería para mascotas es un salvavidas cuando tengo que viajar por trabajo. Sé que mi perro Max está en buenas manos y se divierte con otros perros."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Ana Martínez">
+                        </div>
+                        <div class="author-info">
+                            <h4>Ana Martínez</h4>
+                            <p>Dueña de Max</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>PetCare</h3>
+                    <p>Ofrecemos los mejores servicios para el cuidado de tu mascota. Calidad y confianza desde 2010.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Enlaces Rápidos</h3>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#productos">Productos</a></li>
+                        <li><a href="#turnos">Agendar Turno</a></li>
+                        <li><a href="#testimonios">Testimonios</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Servicios</h3>
+                    <ul>
+                        <li><a href="#ddd">Peluquería Canina</a></li>
+                        <li><a href="#">Consultas Veterinarias</a></li>
+                        <li><a href="#">Guardería</a></li>
+                        <li><a href="#">Adiestramiento</a></li>
+                        <li><a href="#">Paseos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> Calle Mascotas 123, Capital Federal</li>
+                        <li><i class="fas fa-phone"></i> +54 11 23439193</li>
+                        <li><i class="fas fa-envelope"></i> info@petcare.com.ar</li>
+                        <li><i class="fas fa-clock"></i> Lunes a Sábado: 9:00 - 18:00</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PetCare. Todos los derechos reservados. Version 1.1</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de confirmación -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>¡Turno Agendado!</h3>
+            <p>Tu turno ha sido agendado exitosamente. Te contactaremos pronto para confirmar los detalles.</p>
+            <button id="modalClose" class="btn">Aceptar</button>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- ================= MODAL CLIENTES ================= -->
-<div class="modal fade" id="modalClientes" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Gestión de Clientes</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <!-- FORMULARIO CLIENTE -->
-        <form id="formClienteModal" class="row g-3 mb-3">
-          <input type="hidden" id="clienteId">
-
-          <div class="col-md-3">
-            <label class="form-label">Nombre</label>
-            <input type="text" id="nombre" class="form-control" required>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Apellido</label>
-            <input type="text" id="apellido" class="form-control" required>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Teléfono</label>
-            <input type="text" id="telefono" class="form-control" required>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Correo</label>
-            <input type="email" id="correo" class="form-control" required>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Nombre Mascota</label>
-            <input type="text" id="mascotaNombre" class="form-control">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Tipo</label>
-            <select id="mascotaTipo" class="form-select">
-              <option value="">Seleccionar...</option>
-              <option value="Perro">Perro</option>
-              <option value="Gato">Gato</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-
-          <div class="col-12 text-end">
-            <button type="submit" class="btn btn-success">Guardar</button>
-            <button type="button" id="cancelarEdicion" class="btn btn-secondary">Cancelar</button>
-          </div>
-        </form>
-
-        <!-- BUSCADOR -->
-        <div class="input-group mb-3">
-          <span class="input-group-text">Buscar</span>
-          <input type="text" id="buscarCliente" class="form-control" placeholder="por nombre o apellido...">
-        </div>
-
-        <!-- TABLA CLIENTES -->
-        <div class="table-responsive">
-          <table class="table table-striped table-hover align-middle">
-            <thead class="table-primary">
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th>Mascota</th>
-                <th>Tipo</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaClientes"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="./scripts.js"></script>
+    <script src="/frontend/js/scripts.js"></script>
 </body>
 </html>

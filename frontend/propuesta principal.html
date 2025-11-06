@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas - Peluquería de Mascotas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/propuestaprincipal.css">
+    
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-scissors"></i> Peluquería de Mascotas
+            </span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Pestañas de navegación -->
+        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">
+                    <i class="bi bi-people"></i> Clientes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="turnos-tab" data-bs-toggle="tab" data-bs-target="#turnos" type="button">
+                    <i class="bi bi-calendar-check"></i> Turnos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="consultas-tab" data-bs-toggle="tab" data-bs-target="#consultas" type="button">
+                    <i class="bi bi-search"></i> Consultas
+                </button>
+            </li>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalClientes">Administrar Clientes
+        </button>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- TAB CLIENTES -->
+            <div class="tab-pane fade show active" id="clientes" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-person-plus"></i> Nuevo Cliente
+                            </div>
+                            <div class="card-body">
+                                <form id="formCliente">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre</label>
+                                        <input type="text" class="form-control" id="clienteNombre" required maxlength="15">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Apellido</label>
+                                        <input type="text" class="form-control" id="clienteApellido" required maxlength="15">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Teléfono</label>
+                                        <input type="tel" class="form-control" id="clienteTelefono" required maxlength="15">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Correo</label>
+                                        <input type="email" class="form-control" id="clienteCorreo" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-save"></i> Guardar Cliente
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Agregar Mascota -->
+                        <div class="card" id="cardMascota" style="display:none;">
+                            <div class="card-header">
+                                <i class="bi bi-heart"></i> Agregar Mascota
+                            </div>
+                            <div class="card-body">
+                                <form id="formMascota">
+                                    <input type="hidden" id="mascotaClienteId">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nombre de la mascota</label>
+                                        <input type="text" class="form-control" id="mascotaNombre" required maxlength="15">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tipo</label>
+                                        <select class="form-select" id="mascotaTipo" required>
+                                            <option value="">Seleccione...</option>
+                                            <option value="Perro">Perro</option>
+                                            <option value="Gato">Gato</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-save"></i> Agregar Mascota
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-search"></i> Buscar Cliente
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="buscarCliente" placeholder="Buscar por nombre...">
+                                    <button class="btn btn-primary" onclick="buscarClientes()">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <div id="listaClientes"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB TURNOS -->
+            <div class="tab-pane fade" id="turnos" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-calendar-plus"></i> Agendar Turno
+                            </div>
+                            <div class="card-body">
+                                <form id="formTurno">
+                                    <div class="mb-3">
+                                        <label class="form-label">Cliente</label>
+                                        <select class="form-select" id="turnoClienteId" required onchange="cargarMascotasCliente()">
+                                            <option value="">Seleccione un cliente...</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mascota</label>
+                                        <select class="form-select" id="turnoMascotaId">
+                                            <option value="">Seleccione una mascota...</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Fecha</label>
+                                        <input type="date" class="form-control" id="turnoFecha" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Hora</label>
+                                        <input type="time" class="form-control" id="turnoHora" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-calendar-check"></i> Agendar Turno
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="bi bi-calendar3"></i> Turnos del Día
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <input type="date" class="form-control" id="consultaFecha">
+                                    <button class="btn btn-primary" onclick="cargarTurnosDia()">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <div class="loading" id="loadingTurnos">
+                                    <div class="spinner-border text-primary" role="status"></div>
+                                </div>
+                                <div id="listaTurnos"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONSULTAS -->
+            <div class="tab-pane fade" id="consultas" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-calendar-week"></i> Turnos de la Semana
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <input type="date" class="form-control" id="consultaSemana">
+                            <button class="btn btn-primary" onclick="cargarTurnosSemana()">
+                                <i class="bi bi-search"></i> Ver Semana
+                            </button>
+                        </div>
+                        <div class="loading" id="loadingSemana">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                        <div id="listaTurnosSemana"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de notificaciones -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">Notificación</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ================= MODAL CLIENTES ================= -->
+<div class="modal fade" id="modalClientes" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Gestión de Clientes</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- FORMULARIO CLIENTE -->
+        <form id="formClienteModal" class="row g-3 mb-3">
+          <input type="hidden" id="clienteId">
+
+          <div class="col-md-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" id="nombre" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Apellido</label>
+            <input type="text" id="apellido" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Teléfono</label>
+            <input type="text" id="telefono" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Correo</label>
+            <input type="email" id="correo" class="form-control" required>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Nombre Mascota</label>
+            <input type="text" id="mascotaNombre" class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Tipo</label>
+            <select id="mascotaTipo" class="form-select">
+              <option value="">Seleccionar...</option>
+              <option value="Perro">Perro</option>
+              <option value="Gato">Gato</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <button type="button" id="cancelarEdicion" class="btn btn-secondary">Cancelar</button>
+          </div>
+        </form>
+
+        <!-- BUSCADOR -->
+        <div class="input-group mb-3">
+          <span class="input-group-text">Buscar</span>
+          <input type="text" id="buscarCliente" class="form-control" placeholder="por nombre o apellido...">
+        </div>
+
+        <!-- TABLA CLIENTES -->
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle">
+            <thead class="table-primary">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Mascota</th>
+                <th>Tipo</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaClientes"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./scripts.js"></script>
+</body>
+</html>
