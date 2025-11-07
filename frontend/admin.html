@@ -14,11 +14,11 @@
             <a href="#" class="logo">Pet<span>Care</span></a>
             <nav>
                 <ul>
-                    <li><a href="principal.html">Inicio</a></li>
-                    <li><a href="principal.html#servicios">Servicios</a></li>
-                    <li><a href="principal.html#productos">Productos</a></li>
-                    <li><a href="principal.html#testimonios">Testimonios</a></li>
-                    <li><a href="principal.html#contacto">Contacto</a></li>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="index.html">Servicios</a></li>
+                    <li><a href="index.html">Productos</a></li>
+                    <li><a href="index.html">Testimonios</a></li>
+                    <li><a href="index.html">Contacto</a></li>
                     <li><a href="admin.html">Administración</a></li>
                 </ul>
             </nav>
@@ -46,6 +46,9 @@
                 </button>
                 <button class="admin-tab" data-tab="consultas">
                     <i class="fas fa-search"></i> Consultas
+                </button>
+                <button class="admin-tab" data-tab="reportes">
+                    <i class="fas fa-chart-bar"></i> Reportes
                 </button>
             </div>
 
@@ -226,6 +229,182 @@
                                 <div class="spinner"></div>
                             </div>
                             <div id="listaTurnosSemana" class="turnos-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB REPORTES -->
+                <div id="reportes" class="admin-tab-pane">
+                    <div class="admin-row">
+                        <div class="admin-col">
+                            <div class="admin-card">
+                                <div class="admin-card-header">
+                                    <h3><i class="fas fa-filter"></i> Filtros de Reporte</h3>
+                                </div>
+                                <div class="admin-card-body">
+                                    <form id="formFiltroReportes">
+                                        <div class="form-group">
+                                            <label class="form-label">Período</label>
+                                            <select class="form-select" id="reportePeriodo">
+                                                <option value="hoy">Hoy</option>
+                                                <option value="semana">Esta Semana</option>
+                                                <option value="mes">Este Mes</option>
+                                                <option value="trimestre">Este Trimestre</option>
+                                                <option value="personalizado">Personalizado</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" id="fechasPersonalizadas" style="display: none;">
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label class="form-label">Fecha Inicio</label>
+                                                    <input type="date" class="form-control" id="fechaInicio">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Fecha Fin</label>
+                                                    <input type="date" class="form-control" id="fechaFin">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-full" onclick="generarReportes()">
+                                            <i class="fas fa-chart-bar"></i> Generar Reportes
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-col">
+                            <div class="admin-card">
+                                <div class="admin-card-header">
+                                    <h3><i class="fas fa-chart-line"></i> Resumen General</h3>
+                                </div>
+                                <div class="admin-card-body">
+                                    <div class="stats-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-money-bill-wave"></i>
+                                            </div>
+                                            <div class="stat-info">
+                                                <h4 id="totalIngresos">$0</h4>
+                                                <p>Ingresos Totales</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                            <div class="stat-info">
+                                                <h4 id="totalTurnos">0</h4>
+                                                <p>Total Turnos</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            <div class="stat-info">
+                                                <h4 id="totalClientes">0</h4>
+                                                <p>Clientes Atendidos</p>
+                                            </div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-icon">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div class="stat-info">
+                                                <h4 id="servicioPopular">-</h4>
+                                                <p>Servicio Más Popular</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-row">
+                        <div class="admin-col">
+                            <div class="admin-card">
+                                <div class="admin-card-header">
+                                    <h3><i class="fas fa-chart-pie"></i> Servicios Más Populares</h3>
+                                </div>
+                                <div class="admin-card-body">
+                                    <div id="graficoServicios" class="reporte-grafico">
+                                        <p class="text-center">Seleccione un período y genere el reporte</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-col">
+                            <div class="admin-card">
+                                <div class="admin-card-header">
+                                    <h3><i class="fas fa-clock"></i> Horarios Pico</h3>
+                                </div>
+                                <div class="admin-card-body">
+                                    <div id="graficoHorarios" class="reporte-grafico">
+                                        <p class="text-center">Seleccione un período y genere el reporte</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="admin-row">
+                        <div class="admin-col">
+                            <div class="admin-card">
+                                <div class="admin-card-header">
+                                    <h3><i class="fas fa-trophy"></i> Clientes Frecuentes</h3>
+                                </div>
+                                <div class="admin-card-body">
+                                    <div class="table-container">
+                                        <table class="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Cliente</th>
+                                                    <th>Visitas</th>
+                                                    <th>Última Visita</th>
+                                                    <th>Total Gastado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tablaClientesFrecuentes">
+                                                <tr>
+                                                    <td colspan="5" class="text-center">Seleccione un período y genere el reporte</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-col">
+                            <div class="admin-card">
+                                <div class="admin-card-header">
+                                    <h3><i class="fas fa-user-check"></i> Eficiencia del Personal</h3>
+                                </div>
+                                <div class="admin-card-body">
+                                    <div class="table-container">
+                                        <table class="admin-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Peliquero</th>
+                                                    <th>Turnos</th>
+                                                    <th>Ingresos</th>
+                                                    <th>Promedio/Turno</th>
+                                                    <th>Eficiencia</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tablaEficiencia">
+                                                <tr>
+                                                    <td colspan="5" class="text-center">Seleccione un período y genere el reporte</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -42,6 +42,123 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     });
 });
 
+// ================= SISTEMA DE ANIMACIONES =================
+
+class NumberAnimator {
+    constructor() {
+        this.animations = [];
+    }
+    
+    // Animación principal para números
+    animateNumber(element, finalValue, options = {}) {
+        const {
+            duration = 1200,
+            prefix = '',
+            suffix = '',
+            startValue = 0,
+            easing = 'easeOutQuart',
+            onComplete = null
+        } = options;
+        
+        return new Promise((resolve) => {
+            let startTime = null;
+            const elementToAnimate = typeof element === 'string' ? 
+                document.querySelector(element) : element;
+            
+            // Guardar el texto original para restaurar después de la animación
+            const originalText = elementToAnimate.textContent;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                
+                // Diferentes funciones de easing
+                let easedProgress;
+                switch(easing) {
+                    case 'easeOutQuart':
+                        easedProgress = 1 - Math.pow(1 - progress, 4);
+                        break;
+                    case 'easeOutBack':
+                        easedProgress = 1 - Math.pow(1 - progress, 3);
+                        break;
+                    case 'easeOutElastic':
+                        easedProgress = 1 - Math.pow(1 - progress, 3) * Math.cos(progress * Math.PI * 4);
+                        break;
+                    default:
+                        easedProgress = progress;
+                }
+                
+                const currentValue = Math.floor(startValue + (finalValue - startValue) * easedProgress);
+                
+                if (elementToAnimate) {
+                    elementToAnimate.textContent = `${prefix}${currentValue.toLocaleString()}${suffix}`;
+                    
+                    // Efecto visual durante la animación
+                    if (progress < 1) {
+                        elementToAnimate.style.color = '#ff7a5a';
+                        elementToAnimate.style.fontWeight = 'bold';
+                    } else {
+                        elementToAnimate.style.color = '';
+                        elementToAnimate.style.fontWeight = '';
+                        if (onComplete) onComplete();
+                        resolve();
+                    }
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        });
+    }
+    
+    // Animación para barras de progreso
+    animateBar(barraElement, finalPercentage, duration = 1000) {
+        return new Promise((resolve) => {
+            let startTime = null;
+            
+            function animate(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                const currentPercentage = finalPercentage * easedProgress;
+                
+                if (barraElement) {
+                    barraElement.style.width = `${currentPercentage}%`;
+                    
+                    // Actualizar el texto dentro de la barra
+                    const progressText = barraElement.querySelector('.barra-progreso-texto');
+                    if (progressText) {
+                        progressText.textContent = Math.floor(currentPercentage);
+                    }
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    resolve();
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        });
+    }
+    
+    // Ejecutar múltiples animaciones en secuencia
+    async animateSequence(animations) {
+        for (const animation of animations) {
+            await this.animateNumber(...animation);
+            await new Promise(resolve => setTimeout(resolve, 100)); // Pequeña pausa entre animaciones
+        }
+    }
+}
+
+// Crear instancia global del animador
+const animator = new NumberAnimator();
+
 // Datos de ejemplo para clientes y turnos
 let clientes = JSON.parse(localStorage.getItem('clientes')) || [
     { 
@@ -76,6 +193,22 @@ const horariosDisponibles = [
     "09:00", "10:00", "11:00", "12:00", 
     "14:00", "15:00", "16:00", "17:00"
 ];
+
+// Precios de servicios (simulados para el ejemplo)
+const preciosServicios = {
+    "peluqueria": 1500,
+    "veterinaria": 2000,
+    "guarderia": 1200,
+    "adiestramiento": 1800,
+    "paseos": 800,
+    "Vacunas": 1500,
+    "Atencion al bienestar": 1700,
+    "Cuidado Dental": 2200,
+    "Atencion de Emergencia": 3500,
+    "Microchip": 2500,
+    "Telemedicina": 1200,
+    "otros": 1000
+};
 
 // Función para obtener horas ocupadas para una fecha específica
 function obtenerHorasOcupadas(fecha) {
@@ -635,6 +768,321 @@ document.getElementById('buscarCliente').addEventListener('input', function() {
     });
 });
 
+// ================= SISTEMA DE REPORTES CON ANIMACIONES =================
+
+// Mostrar/ocultar fechas personalizadas
+document.getElementById('reportePeriodo').addEventListener('change', function() {
+    const fechasPersonalizadas = document.getElementById('fechasPersonalizadas');
+    if (this.value === 'personalizado') {
+        fechasPersonalizadas.style.display = 'block';
+    } else {
+        fechasPersonalizadas.style.display = 'none';
+    }
+});
+
+// Función principal para generar reportes
+async function generarReportes() {
+    const periodo = document.getElementById('reportePeriodo').value;
+    let fechaInicio, fechaFin;
+
+    // Calcular fechas según el período seleccionado
+    const hoy = new Date();
+    switch (periodo) {
+        case 'hoy':
+            fechaInicio = new Date(hoy);
+            fechaFin = new Date(hoy);
+            break;
+        case 'semana':
+            fechaInicio = new Date(hoy);
+            fechaInicio.setDate(hoy.getDate() - 7);
+            fechaFin = new Date(hoy);
+            break;
+        case 'mes':
+            fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            break;
+        case 'trimestre':
+            fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth() - 2, 1);
+            fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+            break;
+        case 'personalizado':
+            fechaInicio = new Date(document.getElementById('fechaInicio').value);
+            fechaFin = new Date(document.getElementById('fechaFin').value);
+            break;
+    }
+
+    // Obtener todos los turnos del período
+    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    const turnosAdminData = JSON.parse(localStorage.getItem('turnosAdmin')) || [];
+    const todosLosTurnos = [...turnosPublicos, ...turnosAdminData];
+
+    const turnosFiltrados = todosLosTurnos.filter(turno => {
+        const fechaTurno = new Date(turno.fecha);
+        return fechaTurno >= fechaInicio && fechaTurno <= fechaFin;
+    });
+
+    // Generar todos los reportes con animaciones
+    await generarResumenGeneral(turnosFiltrados);
+    await generarReporteServicios(turnosFiltrados);
+    await generarReporteHorarios(turnosFiltrados);
+    generarReporteClientesFrecuentes(turnosFiltrados);
+    generarReporteEficiencia(turnosFiltrados);
+}
+
+// 1. Resumen General con Animaciones
+async function generarResumenGeneral(turnos) {
+    const totalTurnos = turnos.length;
+    
+    // Calcular ingresos totales
+    const ingresosTotales = turnos.reduce((total, turno) => {
+        const precio = preciosServicios[turno.servicio] || preciosServicios.otros;
+        return total + precio;
+    }, 0);
+
+    const totalClientes = new Set(turnos.map(t => t.clienteId || t.nombre)).size;
+
+    // Servicio más popular
+    const serviciosCount = {};
+    turnos.forEach(turno => {
+        serviciosCount[turno.servicio] = (serviciosCount[turno.servicio] || 0) + 1;
+    });
+    
+    const servicioPopular = Object.keys(serviciosCount).reduce((a, b) => 
+        serviciosCount[a] > serviciosCount[b] ? a : b, '');
+
+    // Animar los valores en secuencia
+    await animator.animateNumber(
+        document.getElementById('totalIngresos'), 
+        ingresosTotales, 
+        { prefix: '$', duration: 1500, easing: 'easeOutElastic' }
+    );
+
+    await animator.animateNumber(
+        document.getElementById('totalTurnos'), 
+        totalTurnos, 
+        { duration: 1200, easing: 'easeOutQuart' }
+    );
+
+    await animator.animateNumber(
+        document.getElementById('totalClientes'), 
+        totalClientes, 
+        { duration: 1000, easing: 'easeOutQuart' }
+    );
+
+    document.getElementById('servicioPopular').textContent = servicioPopular || '-';
+}
+
+// 2. Servicios Más Populares con Animaciones
+async function generarReporteServicios(turnos) {
+    const serviciosCount = {};
+    const serviciosIngresos = {};
+
+    turnos.forEach(turno => {
+        const servicio = turno.servicio;
+        const precio = preciosServicios[servicio] || preciosServicios.otros;
+        
+        serviciosCount[servicio] = (serviciosCount[servicio] || 0) + 1;
+        serviciosIngresos[servicio] = (serviciosIngresos[servicio] || 0) + precio;
+    });
+
+    const serviciosArray = Object.keys(serviciosCount).map(servicio => ({
+        servicio,
+        cantidad: serviciosCount[servicio],
+        ingresos: serviciosIngresos[servicio]
+    })).sort((a, b) => b.cantidad - a.cantidad);
+
+    const maxCantidad = Math.max(...serviciosArray.map(s => s.cantidad));
+
+    let html = '<div class="grafico-barras">';
+    serviciosArray.forEach(item => {
+        const porcentaje = (item.cantidad / maxCantidad) * 100;
+        html += `
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span>${item.servicio}</span>
+                    <span>${item.cantidad} turnos ($${item.ingresos.toLocaleString()})</span>
+                </div>
+                <div class="barra">
+                    <div class="barra-progreso" data-servicio="${item.servicio}" style="width: 0%">
+                        <span class="barra-progreso-texto">0</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    document.getElementById('graficoServicios').innerHTML = html;
+
+    // Animar las barras después de un pequeño delay
+    setTimeout(async () => {
+        for (let i = 0; i < serviciosArray.length; i++) {
+            const item = serviciosArray[i];
+            const porcentaje = (item.cantidad / maxCantidad) * 100;
+            const barraElement = document.querySelector(`[data-servicio="${item.servicio}"]`);
+            
+            if (barraElement) {
+                await animator.animateBar(barraElement, porcentaje, 800);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+    }, 300);
+}
+
+// 3. Horarios Pico con Animaciones
+async function generarReporteHorarios(turnos) {
+    const horariosCount = {
+        "09:00": 0, "10:00": 0, "11:00": 0, "12:00": 0,
+        "14:00": 0, "15:00": 0, "16:00": 0, "17:00": 0
+    };
+
+    turnos.forEach(turno => {
+        if (horariosCount.hasOwnProperty(turno.hora)) {
+            horariosCount[turno.hora]++;
+        }
+    });
+
+    const maxHorarios = Math.max(...Object.values(horariosCount));
+
+    let html = '<div class="grafico-barras">';
+    Object.entries(horariosCount).forEach(([hora, cantidad]) => {
+        const porcentaje = maxHorarios > 0 ? (cantidad / maxHorarios) * 100 : 0;
+        html += `
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span>${hora} ${hora < '12:00' ? 'AM' : 'PM'}</span>
+                    <span>${cantidad} turnos</span>
+                </div>
+                <div class="barra">
+                    <div class="barra-progreso" data-hora="${hora}" style="width: 0%">
+                        <span class="barra-progreso-texto">0</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    document.getElementById('graficoHorarios').innerHTML = html;
+
+    // Animar las barras después de un pequeño delay
+    setTimeout(async () => {
+        const horariosEntries = Object.entries(horariosCount);
+        for (let i = 0; i < horariosEntries.length; i++) {
+            const [hora, cantidad] = horariosEntries[i];
+            const porcentaje = maxHorarios > 0 ? (cantidad / maxHorarios) * 100 : 0;
+            const barraElement = document.querySelector(`[data-hora="${hora}"]`);
+            
+            if (barraElement) {
+                await animator.animateBar(barraElement, porcentaje, 600);
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        }
+    }, 300);
+}
+
+// 4. Clientes Frecuentes
+function generarReporteClientesFrecuentes(turnos) {
+    const clientesMap = {};
+
+    turnos.forEach(turno => {
+        const clienteId = turno.clienteId || turno.nombre;
+        const clienteNombre = turno.clienteId ? 
+            (clientes.find(c => c.id === turno.clienteId)?.nombre + ' ' + clientes.find(c => c.id === turno.clienteId)?.apellido) : 
+            turno.nombre;
+        
+        if (!clientesMap[clienteId]) {
+            clientesMap[clienteId] = {
+                nombre: clienteNombre,
+                visitas: 0,
+                totalGastado: 0,
+                ultimaVisita: ''
+            };
+        }
+
+        const precio = preciosServicios[turno.servicio] || preciosServicios.otros;
+        clientesMap[clienteId].visitas++;
+        clientesMap[clienteId].totalGastado += precio;
+        clientesMap[clienteId].ultimaVisita = turno.fecha;
+    });
+
+    const clientesArray = Object.values(clientesMap)
+        .sort((a, b) => b.visitas - a.visitas)
+        .slice(0, 10);
+
+    let html = '';
+    if (clientesArray.length === 0) {
+        html = '<tr><td colspan="5" class="text-center">No hay datos para el período seleccionado</td></tr>';
+    } else {
+        clientesArray.forEach((cliente, index) => {
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${cliente.nombre}</td>
+                    <td>${cliente.visitas}</td>
+                    <td>${formatearFechaCorta(cliente.ultimaVisita)}</td>
+                    <td>$${cliente.totalGastado.toLocaleString()}</td>
+                </tr>
+            `;
+        });
+    }
+
+    document.getElementById('tablaClientesFrecuentes').innerHTML = html;
+}
+
+// 5. Eficiencia del Personal (simulada)
+function generarReporteEficiencia(turnos) {
+    // Simulamos datos de peluqueros
+    const peluqueros = [
+        { id: 1, nombre: "María González", turnos: 0, ingresos: 0 },
+        { id: 2, nombre: "Carlos Rodríguez", turnos: 0, ingresos: 0 },
+        { id: 3, nombre: "Ana Martínez", turnos: 0, ingresos: 0 }
+    ];
+
+    // Distribuir turnos aleatoriamente entre peluqueros para el ejemplo
+    turnos.forEach(turno => {
+        const peluqueroIndex = Math.floor(Math.random() * peluqueros.length);
+        const precio = preciosServicios[turno.servicio] || preciosServicios.otros;
+        
+        peluqueros[peluqueroIndex].turnos++;
+        peluqueros[peluqueroIndex].ingresos += precio;
+    });
+
+    let html = '';
+    peluqueros.forEach(peluquero => {
+        const promedio = peluquero.turnos > 0 ? peluquero.ingresos / peluquero.turnos : 0;
+        let eficiencia = 'Baja';
+        let badgeClass = 'badge-warning';
+
+        if (peluquero.turnos >= 10) {
+            eficiencia = 'Alta';
+            badgeClass = 'badge-success';
+        } else if (peluquero.turnos >= 5) {
+            eficiencia = 'Media';
+            badgeClass = 'badge-info';
+        }
+
+        html += `
+            <tr>
+                <td>${peluquero.nombre}</td>
+                <td>${peluquero.turnos}</td>
+                <td>$${peluquero.ingresos.toLocaleString()}</td>
+                <td>$${Math.round(promedio).toLocaleString()}</td>
+                <td><span class="badge ${badgeClass}">${eficiencia}</span></td>
+            </tr>
+        `;
+    });
+
+    document.getElementById('tablaEficiencia').innerHTML = html;
+}
+
+// Función auxiliar para formatear fecha corta
+function formatearFechaCorta(fecha) {
+    if (!fecha) return '-';
+    const fechaObj = new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES');
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     cargarTablaClientes();
@@ -658,11 +1106,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Actualizar horas disponibles en el formulario administrativo
     actualizarHorasDisponiblesAdmin();
-});
-
-// Actualizar horas disponibles cuando cambia la fecha en el formulario administrativo
-document.getElementById('turnoFecha').addEventListener('change', function() {
-    actualizarHorasDisponiblesAdmin();
+    
+    // Configurar fechas para reportes (hoy por defecto)
+    document.getElementById('fechaInicio').value = hoy.toISOString().split('T')[0];
+    document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
 });
 
 // Efecto de aparición al hacer scroll
