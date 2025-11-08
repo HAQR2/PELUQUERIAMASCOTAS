@@ -512,6 +512,9 @@ function cargarTurnosDia() {
                     ` : ''}
                 </div>
                 <div class="turno-actions">
+                    <button class="action-btn btn-edit" onclick="editarTurnoAdmin(${turno.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
                     <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
                         <i class="fas fa-trash"></i> Cancelar
                     </button>
@@ -541,6 +544,9 @@ function cargarTurnosDia() {
                     ` : ''}
                 </div>
                 <div class="turno-actions">
+                    <button class="action-btn btn-edit" onclick="editarTurnoPublico(${turno.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
                     <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
                         <i class="fas fa-trash"></i> Cancelar
                     </button>
@@ -655,6 +661,9 @@ function cargarTurnosSemana() {
                                 ` : ''}
                             </div>
                             <div class="turno-actions">
+                                <button class="action-btn btn-edit" onclick="editarTurnoAdmin(${turno.id})">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
                                 <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
                                     <i class="fas fa-trash"></i> Cancelar
                                 </button>
@@ -684,6 +693,9 @@ function cargarTurnosSemana() {
                                 ` : ''}
                             </div>
                             <div class="turno-actions">
+                                <button class="action-btn btn-edit" onclick="editarTurnoPublico(${turno.id})">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
                                 <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
                                     <i class="fas fa-trash"></i> Cancelar
                                 </button>
@@ -768,6 +780,191 @@ document.getElementById('buscarCliente').addEventListener('input', function() {
     });
 });
 
+// ================= FUNCIONALIDAD PARA EDITAR TURNOS =================
+
+// Funciones para editar turnos
+function editarTurno(turno) {
+    // Llenar el formulario de edición con los datos del turno
+    document.getElementById('turnoEditId').value = turno.id;
+    document.getElementById('turnoEditTipo').value = turno.tipo || 'publico';
+    
+    if (turno.clienteId) {
+        // Turno administrativo
+        const cliente = clientes.find(c => c.id === turno.clienteId);
+        const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+        
+        if (cliente && mascota) {
+            document.getElementById('turnoEditNombre').value = cliente.nombre;
+            document.getElementById('turnoEditApellido').value = cliente.apellido;
+            document.getElementById('turnoEditTelefono').value = cliente.telefono;
+            document.getElementById('turnoEditCorreo').value = cliente.correo;
+            document.getElementById('turnoEditMascotaNombre').value = mascota.nombre;
+            document.getElementById('turnoEditMascotaTipo').value = mascota.tipo;
+        }
+    } else {
+        // Turno público
+        document.getElementById('turnoEditNombre').value = turno.nombre;
+        document.getElementById('turnoEditApellido').value = '';
+        document.getElementById('turnoEditTelefono').value = turno.telefono;
+        document.getElementById('turnoEditCorreo').value = turno.email;
+        document.getElementById('turnoEditMascotaNombre').value = turno.mascota;
+        document.getElementById('turnoEditMascotaTipo').value = turno.mascota === 'Perro' ? 'Perro' : 
+                                                              turno.mascota === 'Gato' ? 'Gato' : 'Otro';
+    }
+    
+    document.getElementById('turnoEditFecha').value = turno.fecha;
+    document.getElementById('turnoEditMensaje').value = turno.mensaje || '';
+    
+    // Actualizar horas disponibles para la fecha seleccionada
+    actualizarHorasDisponiblesEdicion(turno.fecha, turno.hora);
+    
+    // Mostrar el modal
+    document.getElementById('modalEditarTurno').style.display = 'block';
+}
+
+function actualizarHorasDisponiblesEdicion(fecha, horaActual) {
+    const selectHora = document.getElementById('turnoEditHora');
+    
+    // Limpiar el select
+    selectHora.innerHTML = '<option value="">Seleccione una hora</option>';
+    
+    if (!fecha) return;
+    
+    // Obtener horas ocupadas para la fecha seleccionada
+    const horasOcupadas = obtenerHorasOcupadas(fecha);
+    
+    // Agregar opciones de horas disponibles
+    horariosDisponibles.forEach(hora => {
+        const option = document.createElement('option');
+        option.value = hora;
+        option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+        
+        // Marcar como seleccionada la hora actual
+        if (hora === horaActual) {
+            option.selected = true;
+        }
+        
+        // Deshabilitar opción si la hora está ocupada y no es la hora actual
+        if (horasOcupadas.includes(hora) && hora !== horaActual) {
+            option.disabled = true;
+            option.textContent += ' (No disponible)';
+        }
+        
+        selectHora.appendChild(option);
+    });
+}
+
+// Formulario de edición de turno
+document.getElementById('formEditarTurno').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const turnoId = parseInt(document.getElementById('turnoEditId').value);
+    const turnoTipo = document.getElementById('turnoEditTipo').value;
+    const fecha = document.getElementById('turnoEditFecha').value;
+    const hora = document.getElementById('turnoEditHora').value;
+    
+    if (!fecha || !hora) {
+        mostrarMensaje('Por favor, complete todos los campos obligatorios');
+        return;
+    }
+    
+    // Verificar si la hora ya está ocupada (excepto para el mismo turno)
+    const horasOcupadas = obtenerHorasOcupadas(fecha);
+    const turnoExistente = turnoTipo === 'admin' ? 
+        turnosAdmin.find(t => t.id === turnoId) : 
+        JSON.parse(localStorage.getItem('turnosPublicos')).find(t => t.id === turnoId);
+    
+    if (horasOcupadas.includes(hora) && turnoExistente.hora !== hora) {
+        mostrarMensaje('Lo sentimos, esa hora ya está ocupada. Por favor, elija otra.');
+        return;
+    }
+    
+    if (turnoTipo === 'admin') {
+        // Actualizar turno administrativo
+        const turnoIndex = turnosAdmin.findIndex(t => t.id === turnoId);
+        if (turnoIndex !== -1) {
+            turnosAdmin[turnoIndex].fecha = fecha;
+            turnosAdmin[turnoIndex].hora = hora;
+            turnosAdmin[turnoIndex].mensaje = document.getElementById('turnoEditMensaje').value;
+        }
+    } else {
+        // Actualizar turno público
+        let turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+        const turnoIndex = turnosPublicos.findIndex(t => t.id === turnoId);
+        if (turnoIndex !== -1) {
+            turnosPublicos[turnoIndex].fecha = fecha;
+            turnosPublicos[turnoIndex].hora = hora;
+            turnosPublicos[turnoIndex].mensaje = document.getElementById('turnoEditMensaje').value;
+            localStorage.setItem('turnosPublicos', JSON.stringify(turnosPublicos));
+        }
+    }
+    
+    guardarDatos();
+    
+    // Cerrar modal de edición
+    document.getElementById('modalEditarTurno').style.display = 'none';
+    
+    // Mostrar modal de confirmación
+    document.getElementById('modalConfirmacion').style.display = 'block';
+    
+    // Actualizar las listas de turnos
+    cargarTurnosDia();
+    cargarTurnosSemana();
+});
+
+// Actualizar horas disponibles cuando cambia la fecha en el formulario de edición
+document.getElementById('turnoEditFecha').addEventListener('change', function() {
+    const horaActual = document.getElementById('turnoEditHora').value;
+    actualizarHorasDisponiblesEdicion(this.value, horaActual);
+});
+
+// Funciones para cerrar modales
+document.querySelectorAll('.close').forEach(closeBtn => {
+    closeBtn.addEventListener('click', function() {
+        document.getElementById('modalEditarTurno').style.display = 'none';
+        document.getElementById('modalConfirmacion').style.display = 'none';
+    });
+});
+
+document.getElementById('cancelarEdicionTurno').addEventListener('click', function() {
+    document.getElementById('modalEditarTurno').style.display = 'none';
+});
+
+document.getElementById('modalConfirmClose').addEventListener('click', function() {
+    document.getElementById('modalConfirmacion').style.display = 'none';
+});
+
+// Cerrar modales al hacer clic fuera de ellos
+window.addEventListener('click', function(e) {
+    const modalEditar = document.getElementById('modalEditarTurno');
+    const modalConfirm = document.getElementById('modalConfirmacion');
+    
+    if (e.target === modalEditar) {
+        modalEditar.style.display = 'none';
+    }
+    if (e.target === modalConfirm) {
+        modalConfirm.style.display = 'none';
+    }
+});
+
+// Funciones específicas para editar turnos administrativos y públicos
+function editarTurnoAdmin(id) {
+    const turno = turnosAdmin.find(t => t.id === id);
+    if (turno) {
+        turno.tipo = 'admin';
+        editarTurno(turno);
+    }
+}
+
+function editarTurnoPublico(id) {
+    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
+    const turno = turnosPublicos.find(t => t.id === id);
+    if (turno) {
+        turno.tipo = 'publico';
+        editarTurno(turno);
+    }
+}
+
 // ================= SISTEMA DE REPORTES CON ANIMACIONES =================
 
 // Mostrar/ocultar fechas personalizadas
@@ -787,6 +984,8 @@ async function generarReportes() {
 
     // Calcular fechas según el período seleccionado
     const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
     switch (periodo) {
         case 'hoy':
             fechaInicio = new Date(hoy);
@@ -809,6 +1008,15 @@ async function generarReportes() {
             fechaInicio = new Date(document.getElementById('fechaInicio').value);
             fechaFin = new Date(document.getElementById('fechaFin').value);
             break;
+        default:
+            fechaInicio = new Date(hoy);
+            fechaFin = new Date(hoy);
+    }
+
+    // Asegurarse de que las fechas son válidas
+    if (isNaN(fechaInicio.getTime()) || isNaN(fechaFin.getTime())) {
+        mostrarMensaje('Por favor, seleccione fechas válidas.');
+        return;
     }
 
     // Obtener todos los turnos del período
@@ -828,7 +1036,6 @@ async function generarReportes() {
     generarReporteClientesFrecuentes(turnosFiltrados);
     generarReporteEficiencia(turnosFiltrados);
 }
-
 // 1. Resumen General con Animaciones
 async function generarResumenGeneral(turnos) {
     const totalTurnos = turnos.length;

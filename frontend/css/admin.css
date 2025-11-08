@@ -594,7 +594,7 @@ nav ul li a:hover {
 }
 
 .large-modal {
-    max-width: 900px;
+    max-width: 700px;
 }
 
 .modal-header {
@@ -1183,4 +1183,103 @@ footer {
     border-left: 3px solid #ff7a5a;
 }
 
+/* Estilos para botones de acción adicionales */
+.btn-edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+    transform: translateY(-2px);
+}
+
+/* Estilos para el modal de edición de turnos */
+.modal-content.large-modal {
+    max-width: 1100px;
+    max-height: 70vh; /* Limitar la altura al 85% del viewport */
+    display: flex;
+    flex-direction: column;
+}
+.modal-header {
+    background: linear-gradient(135deg, #ff7a5a, #ff5a36);
+    color: white;
+    padding: 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .large-modal {
+        margin: 10% auto;
+        width: 95%;
+    }
+}
+
+/* Mejoras visuales para los modales */
+.modal-content {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+.modal-icon {
+    font-size: 60px;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+/* Estilos para las acciones de turnos */
+.turno-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.turno-actions .action-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Asegurar que los botones se vean bien en móviles */
+@media (max-width: 480px) {
+    .turno-actions {
+        flex-direction: column;
+    }
+    
+    .turno-actions .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
 /* Fin de los estilos para reportes */

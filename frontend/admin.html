@@ -233,6 +233,8 @@
                     </div>
                 </div>
 
+<!-- ... (código anterior sin cambios) ... -->
+
                 <!-- TAB REPORTES -->
                 <div id="reportes" class="admin-tab-pane">
                     <div class="admin-row">
@@ -413,53 +415,98 @@
     </section>
     
     <!-- Footer -->
-    <footer id="contacto">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h3>PetCare</h3>
-                    <p>Ofrecemos los mejores servicios para el cuidado de tu mascota. Calidad y confianza desde 2010.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                <div class="footer-col">
-                    <h3>Enlaces Rápidos</h3>
-                    <ul>
-                        <li><a href="principal.html">Inicio</a></li>
-                        <li><a href="principal.html#servicios">Servicios</a></li>
-                        <li><a href="principal.html#productos">Productos</a></li>
-                        <li><a href="principal.html#testimonios">Testimonios</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Servicios</h3>
-                    <ul>
-                        <li><a href="#">Peluquería Canina</a></li>
-                        <li><a href="#">Consultas Veterinarias</a></li>
-                        <li><a href="#">Guardería</a></li>
-                        <li><a href="#">Adiestramiento</a></li>
-                        <li><a href="#">Paseos</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h3>Contacto</h3>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> Calle Mascotas 123, Ciudad</li>
-                        <li><i class="fas fa-phone"></i> +1 234 567 890</li>
-                        <li><i class="fas fa-envelope"></i> info@petcare.com</li>
-                        <li><i class="fas fa-clock"></i> Lunes a Sábado: 9:00 - 18:00</li>
-                    </ul>
-                </div>
+    <!-- ... (footer sin cambios) ... -->
+
+    <!-- Modal para Editar Turno -->
+    <div id="modalEditarTurno" class="modal">
+        <div class="modal-content large-modal">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Editar Turno</h3>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 PetCare. Todos los derechos reservados. Version 1.1</p>
+            <div class="modal-body">
+                <form id="formEditarTurno" class="form-grid">
+                    <input type="hidden" id="turnoEditId">
+                    <input type="hidden" id="turnoEditTipo">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" id="turnoEditNombre" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" id="turnoEditApellido" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" id="turnoEditTelefono" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Correo</label>
+                            <input type="email" id="turnoEditCorreo" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre Mascota</label>
+                            <input type="text" id="turnoEditMascotaNombre" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo Mascota</label>
+                            <select id="turnoEditMascotaTipo" class="form-select" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Perro">Perro</option>
+                                <option value="Gato">Gato</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha Preferida</label>
+                            <input type="date" id="turnoEditFecha" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hora Preferida</label>
+                            <select id="turnoEditHora" class="form-select" required>
+                                <option value="">Seleccione una hora</option>
+                                <!-- Las opciones se generarán dinámicamente -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mensaje Adicional (opcional)</label>
+                        <textarea class="form-control" id="turnoEditMensaje" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary" id="cancelarEdicionTurno">Cancelar</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="modalConfirmacion" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>¡Turno Reagendado!</h3>
+            <p>El turno ha sido modificado exitosamente.</p>
+            <button id="modalConfirmClose" class="btn">Aceptar</button>
+        </div>
+    </div>
 
     <script src="/frontend/js/admin.js"></script>
 </body>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amor de Perros - Peluquería Canina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --negro: #000000;
+            --blanco: #FFFFFF;
+            --rosa: #FF2D8F;
+            --gris-claro: #F5F5F5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: var(--negro);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        
+        /* Header */
+        header {
+            background-color: var(--negro);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background-color: var(--blanco);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            color: var(--rosa);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+        }
+        
+        nav ul li a {
+            color: var(--blanco);
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--rosa);
+        }
+        
+        .cta-button {
+            background-color: var(--rosa);
+            color: var(--blanco);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .cta-button:hover {
+            background-color: #e0267d;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--blanco);
+            position: relative;
+            margin-top: 70px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero-logo {
+            margin-bottom: 30px;
+        }
+        
+        .hero-logo-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background-color: var(--blanco);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        
+        .hero .cta-button {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+        
+        /* Galería Instagram */
+        .gallery-section {
+            padding: 80px 0;
+            background-color: var(--gris-claro);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--negro);
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .section-title p {
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            background-color: var(--blanco);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-10px);
+        }
+        
+        .gallery-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .gallery-info {
+            padding: 15px;
+        }
+        
+        .gallery-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--negro);
+        }
+        
+        .gallery-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .instagram-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--rosa);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .instagram-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Servicios */
+        .services-section {
+            padding: 80px 0;
+            background-color: var(--blanco);
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .service-card {
+            background-color: var(--gris-claro);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background-color: var(--rosa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blanco);
+            font-size: 1.5rem;
+        }
+        
+        .service-card h3 {
+            margin-bottom: 15px;
+            color: var(--negro);
+        }
+        
+        .service-card p {
+            color: #666;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--negro);
+            color: var(--blanco);
+            padding: 50px 0 20px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-logo {
+            margin-bottom: 20px;
+        }
+        
+        .footer-logo .logo-text {
+            color: var(--rosa);
+        }
+        
+        .footer-about p {
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+        
+        .footer-links h3, .footer-contact h3 {
+            margin-bottom: 20px;
+            color: var(--blanco);
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links ul li a:hover {
+            color: var(--rosa);
+        }
+        
+        .footer-contact p {
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+            }
+            
+            .logo {
+                margin-bottom: 15px;
+            }
+            
+            nav ul {
+                margin-bottom: 15px;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 5px 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <!-- Icono corazón con pata -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#FF2D8F"/>
+                        <path d="M9 11C9 11.5523 8.55228 12 8 12C7.44772 12 7 11.5523 7 11C7 10.4477 7.44772 10 8 10C8.55228 10 9 10.4477 9 11Z" fill="white"/>
+                        <path d="M17 11C17 11.5523 16.5523 12 16 12C15.4477 12 15 11.5523 15 11C15 10.4477 15.4477 10 16 10C16.5523 10 17 10.4477 17 11Z" fill="white"/>
+                        <path d="M13 15C13 15.5523 12.5523 16 12 16C11.4477 16 11 15.5523 11 15C11 14.4477 11.4477 14 12 14C12.5523 14 13 14.4477 13 15Z" fill="white"/>
+                        <path d="M10 8C10 8.55228 9.55228 9 9 9C8.44772 9 8 8.55228 8 8C8 7.44772 8.44772 7 9 7C9.55228 7 10 7.44772 10 8Z" fill="white"/>
+                        <path d="M16 8C16 8.55228 15.5523 9 15 9C14.4477 9 14 8.55228 14 8C14 7.44772 14.4477 7 15 7C15.5523 7 16 7.44772 16 8Z" fill="white"/>
+                    </svg>
+                </div>
+                <div class="logo-text">Amor de Perros</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#servicios">Servicios</a></li>
+                    <li><a href="#precios">Precios</a></li>
+                    <li><a href="#galeria">Galería</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <button class="cta-button">Reservar Cita</button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <div class="hero-logo">
+                <div class="hero-logo-icon">
+                    <!-- Icono corazón con pata -->
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#FFFFFF"/>
+                        <path d="M9 11C9 11.5523 8.55228 12 8 12C7.44772 12 7 11.5523 7 11C7 10.4477 7.44772 10 8 10C8.55228 10 9 10.4477 9 11Z" fill="#FF2D8F"/>
+                        <path d="M17 11C17 11.5523 16.5523 12 16 12C15.4477 12 15 11.5523 15 11C15 10.4477 15.4477 10 16 10C16.5523 10 17 10.4477 17 11Z" fill="#FF2D8F"/>
+                        <path d="M13 15C13 15.5523 12.5523 16 12 16C11.4477 16 11 15.5523 11 15C11 14.4477 11.4477 14 12 14C12.5523 14 13 14.4477 13 15Z" fill="#FF2D8F"/>
+                        <path d="M10 8C10 8.55228 9.55228 9 9 9C8.44772 9 8 8.55228 8 8C8 7.44772 8.44772 7 9 7C9.55228 7 10 7.44772 10 8Z" fill="#FF2D8F"/>
+                        <path d="M16 8C16 8.55228 15.5523 9 15 9C14.4477 9 14 8.55228 14 8C14 7.44772 14.4477 7 15 7C15.5523 7 16 7.44772 16 8Z" fill="#FF2D8F"/>
+                    </svg>
+                </div>
+            </div>
+            <h1>Tu Mejor Amigo, en las Mejores Manos</h1>
+            <p>Servicios profesionales de peluquería canina con amor y dedicación.</p>
+            <button class="cta-button">¡Reserva una Cita Hoy!</button>
+        </div>
+    </section>
+
+    <!-- Galería Instagram -->
+    <section class="gallery-section" id="galeria">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nuestros Trabajos</h2>
+                <p>Mira algunas de nuestras transformaciones más recientes en nuestros amigos peludos.</p>
+            </div>
+            <div class="gallery-grid">
+                <!-- Las imágenes vendrían de Instagram -->
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1517423568366-8b83523034fd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=735&q=80" alt="Perro después del grooming" class="gallery-image">
+                    <div class="gallery-info">
+                        <h3>Max - Golden Retriever</h3>
+                        <p>Transformación completa con corte de verano.</p>
+                        <a href="https://www.instagram.com/peluamordeperros/" target="_blank" class="instagram-link">Ver en Instagram</a>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1554692918-08fa0fdc9db3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Perro pequeño arreglado" class="gallery-image">
+                    <div class="gallery-info">
+                        <h3>Luna - Poodle</h3>
+                        <p>Corte de raza y cuidado de uñas.</p>
+                        <a href="https://www.instagram.com/peluamordeperros/" target="_blank" class="instagram-link">Ver en Instagram</a>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1517423738875-5ce310acd3da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=770&q=80" alt="Perro feliz después del baño" class="gallery-image">
+                    <div class="gallery-info">
+                        <h3>Rocky - Husky</h3>
+                        <p>Baño deslanador y cepillado profundo.</p>
+                        <a href="https://www.instagram.com/peluamordeperros/" target="_blank" class="instagram-link">Ver en Instagram</a>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1560743641-3914f2c45636?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80" alt="Perro con corte moderno" class="gallery-image">
+                    <div class="gallery-info">
+                        <h3>Bella - Cocker Spaniel</h3>
+                        <p>Corte de moda y tratamiento hidratante.</p>
+                        <a href="https://www.instagram.com/peluamordeperros/" target="_blank" class="instagram-link">Ver en Instagram</a>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80" alt="Perro pequeño con lazo" class="gallery-image">
+                    <div class="gallery-info">
+                        <h3>Chispa - Yorkshire</h3>
+                        <p>Arreglo completo y accesorios.</p>
+                        <a href="https://www.instagram.com/peluamordeperros/" target="_blank" class="instagram-link">Ver en Instagram</a>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=735&q=80" alt="Perro grande después del grooming" class="gallery-image">
+                    <div class="gallery-info">
+                        <h3>Toby - Pastor Alemán</h3>
+                        <p>Baño completo y cuidado de pelaje.</p>
+                        <a href="https://www.instagram.com/peluamordeperros/" target="_blank" class="instagram-link">Ver en Instagram</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Servicios -->
+    <section class="services-section" id="servicios">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nuestros Servicios</h2>
+                <p>Ofrecemos una amplia gama de servicios para mantener a tu mascota feliz y saludable.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="white" stroke-width="2"/>
+                            <path d="M19.4 15C19.2669 15.3035 19.1339 15.607 19.0009 15.9105C18.561 16.8611 18.121 17.8117 17.6811 18.7623C17.5074 19.1456 17.3337 19.5289 17.16 19.9122C16.8139 20.6651 16.061 21.1 15.25 21.1H8.75C7.939 21.1 7.1861 20.6651 6.84 19.9122C6.6663 19.5289 6.4926 19.1456 6.3189 18.7623C5.879 17.8117 5.4391 16.8611 4.9992 15.9105C4.8662 15.607 4.7332 15.3035 4.6001 15" stroke="white" stroke-width="2"/>
+                            <path d="M4.6 9C4.7331 8.6965 4.8661 8.393 4.9991 8.0895C5.439 7.1389 5.879 6.1883 6.3189 5.2377C6.4926 4.8544 6.6663 4.4711 6.84 4.0878C7.1861 3.3349 7.939 2.9 8.75 2.9H15.25C16.061 2.9 16.8139 3.3349 17.16 4.0878C17.3337 4.4711 17.5074 4.8544 17.6811 5.2377C18.121 6.1883 18.561 7.1389 19.0009 8.0895C19.1339 8.393 19.2669 8.6965 19.4 9" stroke="white" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Baño Completo</h3>
+                    <p>Baño con shampoo especializado según el tipo de piel y pelaje de tu mascota.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 7L9 12L14 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Corte de Pelo</h3>
+                    <p>Corte de raza, corte de moda o corte de higiene según tus preferencias.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2"/>
+                            <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Corte de Uñas</h3>
+                    <p>Corte profesional de uñas con herramientas especializadas para evitar molestias.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z" stroke="white" stroke-width="2"/>
+                            <path d="M6 8C7.65685 8 9 6.65685 9 5C9 3.34315 7.65685 2 6 2C4.34315 2 3 3.34315 3 5C3 6.65685 4.34315 8 6 8Z" stroke="white" stroke-width="2"/>
+                            <path d="M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z" stroke="white" stroke-width="2"/>
+                            <path d="M6 22C7.65685 22 9 20.6569 9 19C9 17.3431 7.65685 16 6 16C4.34315 16 3 17.3431 3 19C3 20.6569 4.34315 22 6 22Z" stroke="white" stroke-width="2"/>
+                            <path d="M8 16V8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 16V8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Cepillado y Deslanado</h3>
+                    <p>Eliminación de pelo muerto y nudos para mantener un pelaje saludable.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="white" stroke-width="2"/>
+                            <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Limpieza de Oídos</h3>
+                    <p>Limpieza profunda de oídos para prevenir infecciones y mantener la salud auditiva.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L13.09 8.26L20 9.27L15 14.14L16.18 21.02L12 17.77L7.82 21.02L9 14.14L4 9.27L10.91 8.26L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Tratamientos Especiales</h3>
+                    <p>Tratamientos hidratantes, antipulgas y otros cuidados especiales según necesidades.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <div class="footer-logo">
+                        <div class="logo">
+                            <div class="logo-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="#FF2D8F"/>
+                                    <path d="M9 11C9 11.5523 8.55228 12 8 12C7.44772 12 7 11.5523 7 11C7 10.4477 7.44772 10 8 10C8.55228 10 9 10.4477 9 11Z" fill="white"/>
+                                    <path d="M17 11C17 11.5523 16.5523 12 16 12C15.4477 12 15 11.5523 15 11C15 10.4477 15.4477 10 16 10C16.5523 10 17 10.4477 17 11Z" fill="white"/>
+                                    <path d="M13 15C13 15.5523 12.5523 16 12 16C11.4477 16 11 15.5523 11 15C11 14.4477 11.4477 14 12 14C12.5523 14 13 14.4477 13 15Z" fill="white"/>
+                                    <path d="M10 8C10 8.55228 9.55228 9 9 9C8.44772 9 8 8.55228 8 8C8 7.44772 8.44772 7 9 7C9.55228 7 10 7.44772 10 8Z" fill="white"/>
+                                    <path d="M16 8C16 8.55228 15.5523 9 15 9C14.4477 9 14 8.55228 14 8C14 7.44772 14.4477 7 15 7C15.5523 7 16 7.44772 16 8Z" fill="white"/>
+                                </svg>
+                            </div>
+                            <div class="logo-text">Amor de Perros</div>
+                        </div>
+                    </div>
+                    <p>Somos un equipo de profesionales apasionados por el cuidado de tus mascotas. Ofrecemos servicios de peluquería canina de alta calidad con amor y dedicación.</p>
+                    <button class="cta-button">Reservar Cita</button>
+                </div>
+                <div class="footer-links">
+                    <h3>Enlaces Rápidos</h3>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#precios">Precios</a></li>
+                        <li><a href="#galeria">Galería</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contacto</h3>
+                    <p><strong>Dirección:</strong> Calle Principal 123, Ciudad</p>
+                    <p><strong>Teléfono:</strong> (123) 456-7890</p>
+                    <p><strong>Email:</strong> info@amordeperros.com</p>
+                    <p><strong>Horario:</strong> Lunes a Sábado: 9:00 - 18:00</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Amor de Perros - Todos los derechos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling para los enlaces del menú
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 70,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Efecto de scroll en el header
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+            } else {
+                header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+            }
+        });
+        
+        // Funcionalidad para los botones de CTA
+        document.querySelectorAll('.cta-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Aquí iría la lógica para abrir un formulario de reserva
+                alert('¡Gracias por tu interés! Próximamente podrás reservar tu cita aquí.');
+            });
+        });
+    </script>
+</body>
+</html>
