@@ -42,6 +42,134 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     });
 });
 
+// ================= CONFIGURACIÓN API =================
+const API_BASE_URL = 'http://localhost:5000';
+
+// ================= FUNCIONES API =================
+
+// Clientes
+async function apiObtenerClientes() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes`);
+        if (!response.ok) throw new Error('Error al obtener clientes');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarMensaje('Error al cargar clientes');
+        return [];
+    }
+}
+
+async function apiCrearCliente(clienteData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(clienteData)
+        });
+        if (!response.ok) throw new Error('Error al crear cliente');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+async function apiActualizarCliente(id, clienteData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(clienteData)
+        });
+        if (!response.ok) throw new Error('Error al actualizar cliente');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+async function apiEliminarCliente(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Error al eliminar cliente');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+// Turnos
+async function apiCrearTurno(turnoData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/turnos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(turnoData)
+        });
+        if (!response.ok) throw new Error('Error al crear turno');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+async function apiObtenerTurnosDia(fecha) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/turnos/dia/${fecha}`);
+        if (!response.ok) throw new Error('Error al obtener turnos');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
+async function apiObtenerTurnosSemana(fechaInicio) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/turnos/semana?fecha_inicio=${fechaInicio}`);
+        if (!response.ok) throw new Error('Error al obtener turnos de la semana');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
+async function apiEliminarTurno(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/turnos/${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Error al eliminar turno');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+// Mascotas
+async function apiAgregarMascota(clienteId, mascotaData) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes/${clienteId}/mascotas`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(mascotaData)
+        });
+        if (!response.ok) throw new Error('Error al agregar mascota');
+        return await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
 // ================= SISTEMA DE ANIMACIONES =================
 
 class NumberAnimator {
@@ -159,34 +287,9 @@ class NumberAnimator {
 // Crear instancia global del animador
 const animator = new NumberAnimator();
 
-// Datos de ejemplo para clientes y turnos
-let clientes = JSON.parse(localStorage.getItem('clientes')) || [
-    { 
-        id: 1, 
-        nombre: "Juan", 
-        apellido: "Pérez", 
-        telefono: "123456789", 
-        correo: "juan@example.com", 
-        mascotas: [
-            { id: 1, nombre: "Max", tipo: "Perro" }
-        ] 
-    },
-    { 
-        id: 2, 
-        nombre: "María", 
-        apellido: "Gómez", 
-        telefono: "987654321", 
-        correo: "maria@example.com", 
-        mascotas: [
-            { id: 2, nombre: "Luna", tipo: "Gato" }
-        ] 
-    }
-];
-
-let turnosAdmin = JSON.parse(localStorage.getItem('turnosAdmin')) || [
-    { id: 1, clienteId: 1, mascotaId: 1, fecha: new Date().toISOString().split('T')[0], hora: "10:00", servicio: "Peluquería" },
-    { id: 2, clienteId: 2, mascotaId: 2, fecha: new Date().toISOString().split('T')[0], hora: "11:00", servicio: "Consulta Veterinaria" }
-];
+// Datos de ejemplo para clientes y turnos (se usarán solo si la API no está disponible)
+let clientes = [];
+let turnosAdmin = [];
 
 // Horarios disponibles
 const horariosDisponibles = [
@@ -211,23 +314,18 @@ const preciosServicios = {
 };
 
 // Función para obtener horas ocupadas para una fecha específica
-function obtenerHorasOcupadas(fecha) {
-    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-    const turnosAdmin = JSON.parse(localStorage.getItem('turnosAdmin')) || [];
-    
-    // Combinar todos los turnos
-    const todosLosTurnos = [...turnosPublicos, ...turnosAdmin];
-    
-    // Filtrar turnos para la fecha específica y obtener las horas
-    const horasOcupadas = todosLosTurnos
-        .filter(turno => turno.fecha === fecha)
-        .map(turno => turno.hora);
-    
-    return horasOcupadas;
+async function obtenerHorasOcupadas(fecha) {
+    try {
+        const turnos = await apiObtenerTurnosDia(fecha);
+        return turnos.map(turno => turno.hora.substring(0, 5)); // Formato HH:MM
+    } catch (error) {
+        console.error('Error al obtener horas ocupadas:', error);
+        return [];
+    }
 }
 
 // Función para actualizar las horas disponibles en el select
-function actualizarHorasDisponiblesAdmin() {
+async function actualizarHorasDisponiblesAdmin() {
     const fechaSeleccionada = document.getElementById('turnoFecha').value;
     const selectHora = document.getElementById('turnoHora');
     
@@ -236,95 +334,73 @@ function actualizarHorasDisponiblesAdmin() {
     
     if (!fechaSeleccionada) return;
     
-    // Obtener horas ocupadas para la fecha seleccionada
-    const horasOcupadas = obtenerHorasOcupadas(fechaSeleccionada);
-    
-    // Agregar opciones de horas disponibles
-    horariosDisponibles.forEach(hora => {
-        const option = document.createElement('option');
-        option.value = hora;
-        option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+    try {
+        // Obtener horas ocupadas para la fecha seleccionada
+        const horasOcupadas = await obtenerHorasOcupadas(fechaSeleccionada);
         
-        // Deshabilitar opción si la hora está ocupada
-        if (horasOcupadas.includes(hora)) {
-            option.disabled = true;
-            option.textContent += ' (No disponible)';
-        }
-        
-        selectHora.appendChild(option);
-    });
-}
-
-// Guardar datos en localStorage
-function guardarDatos() {
-    localStorage.setItem('clientes', JSON.stringify(clientes));
-    localStorage.setItem('turnosAdmin', JSON.stringify(turnosAdmin));
+        // Agregar opciones de horas disponibles
+        horariosDisponibles.forEach(hora => {
+            const option = document.createElement('option');
+            option.value = hora;
+            option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+            
+            // Deshabilitar opción si la hora está ocupada
+            if (horasOcupadas.includes(hora)) {
+                option.disabled = true;
+                option.textContent += ' (No disponible)';
+            }
+            
+            selectHora.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error al actualizar horas disponibles:', error);
+    }
 }
 
 // Formulario de cliente
-document.getElementById('formCliente').addEventListener('submit', function(e) {
+document.getElementById('formCliente').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const clienteId = document.getElementById('clienteId').value;
-    const nombre = document.getElementById('nombre').value;
-    const apellido = document.getElementById('apellido').value;
-    const telefono = document.getElementById('telefono').value;
-    const correo = document.getElementById('correo').value;
-    const mascotaNombre = document.getElementById('mascotaNombre').value;
-    const mascotaTipo = document.getElementById('mascotaTipo').value;
+    const clienteData = {
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        telefono: document.getElementById('telefono').value,
+        correo: document.getElementById('correo').value
+    };
     
-    if (clienteId) {
-        // Editar cliente existente
-        const index = clientes.findIndex(c => c.id == clienteId);
-        if (index !== -1) {
-            clientes[index].nombre = nombre;
-            clientes[index].apellido = apellido;
-            clientes[index].telefono = telefono;
-            clientes[index].correo = correo;
+    try {
+        if (clienteId) {
+            // Editar cliente existente
+            await apiActualizarCliente(clienteId, clienteData);
+            mostrarMensaje('Cliente actualizado exitosamente');
+        } else {
+            // Crear nuevo cliente
+            const nuevoCliente = await apiCrearCliente(clienteData);
             
             // Si se proporcionó una mascota, agregarla
+            const mascotaNombre = document.getElementById('mascotaNombre').value;
+            const mascotaTipo = document.getElementById('mascotaTipo').value;
+            
             if (mascotaNombre && mascotaTipo) {
-                const nuevaMascota = {
-                    id: clientes[index].mascotas.length > 0 ? 
-                        Math.max(...clientes[index].mascotas.map(m => m.id)) + 1 : 1,
+                await apiAgregarMascota(nuevoCliente.cliente.id, {
                     nombre: mascotaNombre,
                     tipo: mascotaTipo
-                };
-                clientes[index].mascotas.push(nuevaMascota);
+                });
             }
             
-            mostrarMensaje('Cliente actualizado exitosamente');
-        }
-    } else {
-        // Crear nuevo cliente
-        const nuevoCliente = {
-            id: clientes.length > 0 ? Math.max(...clientes.map(c => c.id)) + 1 : 1,
-            nombre: nombre,
-            apellido: apellido,
-            telefono: telefono,
-            correo: correo,
-            mascotas: []
-        };
-        
-        // Si se proporcionó una mascota, agregarla
-        if (mascotaNombre && mascotaTipo) {
-            nuevoCliente.mascotas.push({
-                id: 1,
-                nombre: mascotaNombre,
-                tipo: mascotaTipo
-            });
+            mostrarMensaje('Cliente guardado exitosamente');
         }
         
-        clientes.push(nuevoCliente);
-        mostrarMensaje('Cliente guardado exitosamente');
+        this.reset();
+        document.getElementById('clienteId').value = '';
+        document.getElementById('cancelarEdicion').style.display = 'none';
+        await cargarTablaClientes();
+        await actualizarSelectClientes();
+        
+    } catch (error) {
+        mostrarMensaje('Error: ' + error.message);
     }
-    
-    this.reset();
-    document.getElementById('clienteId').value = '';
-    document.getElementById('cancelarEdicion').style.display = 'none';
-    guardarDatos();
-    cargarTablaClientes();
-    actualizarSelectClientes();
 });
 
 // Cancelar edición
@@ -335,7 +411,7 @@ document.getElementById('cancelarEdicion').addEventListener('click', function() 
 });
 
 // Formulario de turno (administración)
-document.getElementById('formTurnoAdmin').addEventListener('submit', function(e) {
+document.getElementById('formTurnoAdmin').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const clienteId = parseInt(document.getElementById('turnoClienteId').value);
@@ -343,112 +419,129 @@ document.getElementById('formTurnoAdmin').addEventListener('submit', function(e)
     const servicio = document.getElementById('turnoServicio').value;
     const fecha = document.getElementById('turnoFecha').value;
     const hora = document.getElementById('turnoHora').value;
-    const mensaje = document.getElementById('turnoMensaje').value;
     
     if (!clienteId || !mascotaId || !servicio || !fecha || !hora) {
         mostrarMensaje('Por favor, complete todos los campos obligatorios');
         return;
     }
     
-    // Verificar si la hora ya está ocupada
-    const horasOcupadas = obtenerHorasOcupadas(fecha);
-    if (horasOcupadas.includes(hora)) {
-        mostrarMensaje('Lo sentimos, esa hora ya está ocupada. Por favor, elija otra.');
-        return;
+    try {
+        // Verificar si la hora ya está ocupada
+        const horasOcupadas = await obtenerHorasOcupadas(fecha);
+        if (horasOcupadas.includes(hora)) {
+            mostrarMensaje('Lo sentimos, esa hora ya está ocupada. Por favor, elija otra.');
+            return;
+        }
+        
+        const turnoData = {
+            cliente_id: clienteId,
+            fecha: fecha,
+            hora: hora,
+            mascota_id: mascotaId
+        };
+        
+        await apiCrearTurno(turnoData);
+        this.reset();
+        mostrarMensaje('Turno agendado exitosamente');
+        await cargarTurnosDia();
+        await cargarTurnosSemana();
+    } catch (error) {
+        mostrarMensaje('Error: ' + error.message);
     }
-    
-    const nuevoTurno = {
-        id: turnosAdmin.length > 0 ? Math.max(...turnosAdmin.map(t => t.id)) + 1 : 1,
-        clienteId: clienteId,
-        mascotaId: mascotaId,
-        servicio: servicio,
-        fecha: fecha,
-        hora: hora,
-        mensaje: mensaje
-    };
-    
-    turnosAdmin.push(nuevoTurno);
-    this.reset();
-    mostrarMensaje('Turno agendado exitosamente');
-    guardarDatos();
-    cargarTurnosDia();
-    cargarTurnosSemana();
 });
 
 // Funciones auxiliares
-function cargarTablaClientes() {
+async function cargarTablaClientes() {
     const tablaClientes = document.getElementById('tablaClientes');
-    tablaClientes.innerHTML = '';
     
-    if (clientes.length === 0) {
-        tablaClientes.innerHTML = '<tr><td colspan="8" class="text-center">No hay clientes registrados</td></tr>';
-        return;
+    try {
+        clientes = await apiObtenerClientes();
+        
+        if (clientes.length === 0) {
+            tablaClientes.innerHTML = '<tr><td colspan="8" class="text-center">No hay clientes registrados</td></tr>';
+            return;
+        }
+        
+        tablaClientes.innerHTML = '';
+        clientes.forEach(cliente => {
+            const fila = document.createElement('tr');
+            const primeraMascota = cliente.mascotas && cliente.mascotas.length > 0 ? cliente.mascotas[0] : null;
+            
+            fila.innerHTML = `
+                <td>${cliente.id}</td>
+                <td>${cliente.nombre}</td>
+                <td>${cliente.apellido}</td>
+                <td>${cliente.telefono}</td>
+                <td>${cliente.correo}</td>
+                <td>${primeraMascota ? primeraMascota.nombre : '-'}</td>
+                <td>${primeraMascota ? primeraMascota.tipo : '-'}</td>
+                <td>
+                    <button class="action-btn btn-edit" onclick="editarCliente(${cliente.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="action-btn btn-delete" onclick="eliminarCliente(${cliente.id})">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </td>
+            `;
+            
+            tablaClientes.appendChild(fila);
+        });
+    } catch (error) {
+        tablaClientes.innerHTML = '<tr><td colspan="8" class="text-center error">Error al cargar clientes</td></tr>';
     }
-    
-    clientes.forEach(cliente => {
-        const fila = document.createElement('tr');
-        
-        // Mostrar información del cliente
-        fila.innerHTML = `
-            <td>${cliente.id}</td>
-            <td>${cliente.nombre}</td>
-            <td>${cliente.apellido}</td>
-            <td>${cliente.telefono}</td>
-            <td>${cliente.correo}</td>
-            <td>${cliente.mascotas.length > 0 ? cliente.mascotas[0].nombre : '-'}</td>
-            <td>${cliente.mascotas.length > 0 ? cliente.mascotas[0].tipo : '-'}</td>
-            <td>
-                <button class="action-btn btn-edit" onclick="editarCliente(${cliente.id})">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
-                <button class="action-btn btn-delete" onclick="eliminarCliente(${cliente.id})">
-                    <i class="fas fa-trash"></i> Eliminar
-                </button>
-            </td>
-        `;
-        
-        tablaClientes.appendChild(fila);
-    });
 }
 
-function editarCliente(id) {
-    const cliente = clientes.find(c => c.id === id);
-    if (!cliente) return;
-    
-    document.getElementById('clienteId').value = cliente.id;
-    document.getElementById('nombre').value = cliente.nombre;
-    document.getElementById('apellido').value = cliente.apellido;
-    document.getElementById('telefono').value = cliente.telefono;
-    document.getElementById('correo').value = cliente.correo;
-    
-    // Limpiar campos de mascota para nueva mascota
-    document.getElementById('mascotaNombre').value = '';
-    document.getElementById('mascotaTipo').value = '';
-    
-    document.getElementById('cancelarEdicion').style.display = 'inline-block';
-    
-    // Scroll al formulario
-    document.getElementById('formCliente').scrollIntoView({ behavior: 'smooth' });
+async function editarCliente(id) {
+    try {
+        const cliente = clientes.find(c => c.id === id);
+        if (!cliente) {
+            // Si no está en cache, buscar en la API
+            const response = await fetch(`${API_BASE_URL}/clientes/${id}`);
+            if (!response.ok) throw new Error('Cliente no encontrado');
+            cliente = await response.json();
+        }
+        
+        document.getElementById('clienteId').value = cliente.id;
+        document.getElementById('nombre').value = cliente.nombre;
+        document.getElementById('apellido').value = cliente.apellido;
+        document.getElementById('telefono').value = cliente.telefono;
+        document.getElementById('correo').value = cliente.correo;
+        
+        // Limpiar campos de mascota para nueva mascota
+        document.getElementById('mascotaNombre').value = '';
+        document.getElementById('mascotaTipo').value = '';
+        
+        document.getElementById('cancelarEdicion').style.display = 'inline-block';
+        
+        // Scroll al formulario
+        document.getElementById('formCliente').scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+        mostrarMensaje('Error: ' + error.message);
+    }
 }
 
-function eliminarCliente(id) {
+async function eliminarCliente(id) {
     if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
-        clientes = clientes.filter(c => c.id !== id);
-        guardarDatos();
-        cargarTablaClientes();
-        actualizarSelectClientes();
-        mostrarMensaje('Cliente eliminado exitosamente');
+        try {
+            await apiEliminarCliente(id);
+            mostrarMensaje('Cliente eliminado exitosamente');
+            await cargarTablaClientes();
+            await actualizarSelectClientes();
+        } catch (error) {
+            mostrarMensaje('Error: ' + error.message);
+        }
     }
 }
 
-function cargarMascotasCliente() {
+async function cargarMascotasCliente() {
     const clienteId = parseInt(document.getElementById('turnoClienteId').value);
     const cliente = clientes.find(c => c.id === clienteId);
     const selectMascota = document.getElementById('turnoMascotaId');
     
     selectMascota.innerHTML = '<option value="">Seleccione una mascota...</option>';
     
-    if (cliente && cliente.mascotas.length > 0) {
+    if (cliente && cliente.mascotas && cliente.mascotas.length > 0) {
         cliente.mascotas.forEach(mascota => {
             const option = document.createElement('option');
             option.value = mascota.id;
@@ -458,146 +551,75 @@ function cargarMascotasCliente() {
     }
 }
 
-function cargarTurnosDia() {
+async function cargarTurnosDia() {
     const fecha = document.getElementById('consultaFecha').value || new Date().toISOString().split('T')[0];
     const listaTurnos = document.getElementById('listaTurnosAdmin');
     
-    listaTurnos.innerHTML = '';
-    
-    // Obtener turnos públicos
-    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-    
-    // Obtener turnos del administrador
-    const turnosDelDiaAdmin = turnosAdmin.filter(t => t.fecha === fecha);
-    
-    // Combinar y filtrar turnos públicos del día
-    const turnosDelDiaPublicos = turnosPublicos.filter(t => t.fecha === fecha);
-    
-    // Combinar todos los turnos del día
-    const todosLosTurnosDelDia = [...turnosDelDiaAdmin, ...turnosDelDiaPublicos];
-    
-    if (todosLosTurnosDelDia.length === 0) {
-        listaTurnos.innerHTML = '<div class="turno-item">No hay turnos para esta fecha</div>';
-        return;
-    }
-    
-    // Ordenar por hora
-    todosLosTurnosDelDia.sort((a, b) => a.hora.localeCompare(b.hora));
-    
-    todosLosTurnosDelDia.forEach(turno => {
-        let turnoElement;
+    try {
+        const turnos = await apiObtenerTurnosDia(fecha);
         
-        if (turno.clienteId) {
-            // Turno del administrador (con cliente registrado)
-            const cliente = clientes.find(c => c.id === turno.clienteId);
-            const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
-            
-            if (!cliente || !mascota) return;
-            
-            turnoElement = document.createElement('div');
-            turnoElement.className = 'turno-item';
-            turnoElement.innerHTML = `
-                <div class="turno-info">
-                    <div class="turno-header">
-                        <strong>${cliente.nombre} ${cliente.apellido}</strong>
-                        <span class="turno-hora">${turno.hora}</span>
-                    </div>
-                    <p><i class="fas fa-paw"></i> ${mascota.nombre} (${mascota.tipo})</p>
-                    <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
-                    ${turno.mensaje ? `
-                        <div class="turno-mensaje">
-                            <strong><i class="fas fa-comment"></i> Mensaje:</strong>
-                            <p>${turno.mensaje}</p>
-                        </div>
-                    ` : ''}
-                </div>
-                <div class="turno-actions">
-                    <button class="action-btn btn-edit" onclick="editarTurnoAdmin(${turno.id})">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
-                        <i class="fas fa-trash"></i> Cancelar
-                    </button>
-                </div>
-            `;
-        } else {
-            // Turno público
-            turnoElement = document.createElement('div');
-            turnoElement.className = 'turno-item';
-            turnoElement.innerHTML = `
-                <div class="turno-info">
-                    <div class="turno-header">
-                        <strong>${turno.nombre}</strong>
-                        <span class="turno-hora">${turno.hora}</span>
-                    </div>
-                    <p><i class="fas fa-paw"></i> ${turno.mascota}</p>
-                    <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
-                    <p class="turno-contacto">
-                        <i class="fas fa-phone"></i> ${turno.telefono} 
-                        | <i class="fas fa-envelope"></i> ${turno.email}
-                    </p>
-                    ${turno.mensaje ? `
-                        <div class="turno-mensaje">
-                            <strong><i class="fas fa-comment"></i> Mensaje adicional:</strong>
-                            <p>${turno.mensaje}</p>
-                        </div>
-                    ` : ''}
-                </div>
-                <div class="turno-actions">
-                    <button class="action-btn btn-edit" onclick="editarTurnoPublico(${turno.id})">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
-                        <i class="fas fa-trash"></i> Cancelar
-                    </button>
-                </div>
-            `;
+        if (turnos.length === 0) {
+            listaTurnos.innerHTML = '<div class="turno-item">No hay turnos para esta fecha</div>';
+            return;
         }
         
-        listaTurnos.appendChild(turnoElement);
-    });
+        listaTurnos.innerHTML = '';
+        turnos.forEach(turno => {
+            const turnoElement = document.createElement('div');
+            turnoElement.className = 'turno-item';
+            turnoElement.innerHTML = `
+                <div class="turno-info">
+                    <div class="turno-header">
+                        <strong>${turno.cliente_nombre}</strong>
+                        <span class="turno-hora">${turno.hora}</span>
+                    </div>
+                    <p><i class="fas fa-paw"></i> ${turno.cliente_mascota}</p>
+                    <p class="turno-contacto">
+                        <i class="fas fa-phone"></i> ${turno.numero} 
+                        | <i class="fas fa-envelope"></i> ${turno.correo}
+                    </p>
+                </div>
+                <div class="turno-actions">
+                    <button class="action-btn btn-edit" onclick="editarTurnoDesdeLista(${turno.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="action-btn btn-delete" onclick="eliminarTurno(${turno.id})">
+                        <i class="fas fa-trash"></i> Cancelar
+                    </button>
+                </div>
+            `;
+            
+            listaTurnos.appendChild(turnoElement);
+        });
+    } catch (error) {
+        listaTurnos.innerHTML = '<div class="turno-item error">Error al cargar turnos</div>';
+    }
 }
 
-function cargarTurnosSemana() {
+async function cargarTurnosSemana() {
     const fechaSeleccionada = document.getElementById('consultaSemana').value || new Date().toISOString().split('T')[0];
-    const fechaSeleccionadaObj = new Date(fechaSeleccionada);
-    
     const listaTurnos = document.getElementById('listaTurnosSemana');
-    listaTurnos.innerHTML = '';
     
-    // Mostrar loading
-    document.getElementById('loadingSemana').style.display = 'block';
-    
-    // Obtener turnos públicos
-    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-    
-    // Obtener turnos del administrador
-    const todosLosTurnos = [...turnosAdmin, ...turnosPublicos];
-    
-    if (todosLosTurnos.length === 0) {
-        document.getElementById('loadingSemana').style.display = 'none';
-        listaTurnos.innerHTML = '<div class="turno-item">No hay turnos registrados</div>';
-        return;
-    }
-    
-    // Crear array de los últimos 7 días (3 días antes + hoy + 3 días después)
-    const diasSemana = [];
-    for (let i = -3; i <= 3; i++) {
-        const fecha = new Date(fechaSeleccionadaObj);
-        fecha.setDate(fecha.getDate() + i);
-        diasSemana.push(fecha.toISOString().split('T')[0]);
-    }
-    
-    // Agrupar turnos por fecha
-    const turnosPorFecha = {};
-    diasSemana.forEach(fecha => {
-        turnosPorFecha[fecha] = todosLosTurnos.filter(turno => turno.fecha === fecha);
-    });
-    
-    // Mostrar turnos agrupados por fecha
-    setTimeout(() => {
-        document.getElementById('loadingSemana').style.display = 'none';
+    try {
+        const turnos = await apiObtenerTurnosSemana(fechaSeleccionada);
         
+        if (turnos.length === 0) {
+            listaTurnos.innerHTML = '<div class="turno-item">No hay turnos para esta semana</div>';
+            return;
+        }
+        
+        // Agrupar turnos por fecha
+        const turnosPorFecha = {};
+        turnos.forEach(turno => {
+            if (!turnosPorFecha[turno.dia]) {
+                turnosPorFecha[turno.dia] = [];
+            }
+            turnosPorFecha[turno.dia].push(turno);
+        });
+        
+        listaTurnos.innerHTML = '';
+        
+        // Mostrar turnos agrupados por fecha
         Object.keys(turnosPorFecha).sort().forEach(fecha => {
             const fechaObj = new Date(fecha);
             const hoy = new Date();
@@ -624,120 +646,52 @@ function cargarTurnosSemana() {
             
             const turnosDelDia = turnosPorFecha[fecha];
             
-            if (turnosDelDia.length === 0) {
-                const sinTurnosElement = document.createElement('div');
-                sinTurnosElement.className = 'turno-item sin-turnos';
-                sinTurnosElement.innerHTML = '<p>No hay turnos para este día</p>';
-                listaTurnos.appendChild(sinTurnosElement);
-            } else {
-                // Ordenar turnos por hora
-                turnosDelDia.sort((a, b) => a.hora.localeCompare(b.hora));
+            // Ordenar turnos por hora
+            turnosDelDia.sort((a, b) => a.hora.localeCompare(b.hora));
+            
+            turnosDelDia.forEach(turno => {
+                const turnoElement = document.createElement('div');
+                turnoElement.className = 'turno-item';
+                turnoElement.innerHTML = `
+                    <div class="turno-info">
+                        <div class="turno-header">
+                            <strong>${turno.cliente_nombre}</strong>
+                            <span class="turno-hora">${turno.hora}</span>
+                        </div>
+                        <p><i class="fas fa-paw"></i> ${turno.cliente_mascota}</p>
+                        <p class="turno-contacto">
+                            <i class="fas fa-phone"></i> ${turno.numero} 
+                            | <i class="fas fa-envelope"></i> ${turno.correo}
+                        </p>
+                    </div>
+                    <div class="turno-actions">
+                        <button class="action-btn btn-edit" onclick="editarTurnoDesdeLista(${turno.id})">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="action-btn btn-delete" onclick="eliminarTurno(${turno.id})">
+                            <i class="fas fa-trash"></i> Cancelar
+                        </button>
+                    </div>
+                `;
                 
-                turnosDelDia.forEach(turno => {
-                    let turnoElement;
-                    
-                    if (turno.clienteId) {
-                        // Turno del administrador
-                        const cliente = clientes.find(c => c.id === turno.clienteId);
-                        const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
-                        
-                        if (!cliente || !mascota) return;
-                        
-                        turnoElement = document.createElement('div');
-                        turnoElement.className = 'turno-item';
-                        turnoElement.innerHTML = `
-                            <div class="turno-info">
-                                <div class="turno-header">
-                                    <strong>${cliente.nombre} ${cliente.apellido}</strong>
-                                    <span class="turno-hora">${turno.hora}</span>
-                                </div>
-                                <p><i class="fas fa-paw"></i> ${mascota.nombre} (${mascota.tipo})</p>
-                                <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
-                                ${turno.mensaje ? `
-                                    <div class="turno-mensaje">
-                                        <strong><i class="fas fa-comment"></i> Mensaje:</strong>
-                                        <p>${turno.mensaje}</p>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            <div class="turno-actions">
-                                <button class="action-btn btn-edit" onclick="editarTurnoAdmin(${turno.id})">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button class="action-btn btn-delete" onclick="eliminarTurnoAdmin(${turno.id})">
-                                    <i class="fas fa-trash"></i> Cancelar
-                                </button>
-                            </div>
-                        `;
-                    } else {
-                        // Turno público
-                        turnoElement = document.createElement('div');
-                        turnoElement.className = 'turno-item';
-                        turnoElement.innerHTML = `
-                            <div class="turno-info">
-                                <div class="turno-header">
-                                    <strong>${turno.nombre}</strong>
-                                    <span class="turno-hora">${turno.hora}</span>
-                                </div>
-                                <p><i class="fas fa-paw"></i> ${turno.mascota}</p>
-                                <p><i class="fas fa-concierge-bell"></i> ${turno.servicio}</p>
-                                <p class="turno-contacto">
-                                    <i class="fas fa-phone"></i> ${turno.telefono} 
-                                    | <i class="fas fa-envelope"></i> ${turno.email}
-                                </p>
-                                ${turno.mensaje ? `
-                                    <div class="turno-mensaje">
-                                        <strong><i class="fas fa-comment"></i> Mensaje adicional:</strong>
-                                        <p>${turno.mensaje}</p>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            <div class="turno-actions">
-                                <button class="action-btn btn-edit" onclick="editarTurnoPublico(${turno.id})">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button class="action-btn btn-delete" onclick="eliminarTurnoPublico(${turno.id})">
-                                    <i class="fas fa-trash"></i> Cancelar
-                                </button>
-                            </div>
-                        `;
-                    }
-                    
-                    listaTurnos.appendChild(turnoElement);
-                });
-            }
+                listaTurnos.appendChild(turnoElement);
+            });
         });
-    }, 500); // Simular carga
-}
-
-function eliminarTurnoAdmin(id) {
-    if (confirm('¿Está seguro de que desea cancelar este turno?')) {
-        // Buscar en turnosAdmin
-        const turnoIndex = turnosAdmin.findIndex(t => t.id === id);
-        if (turnoIndex !== -1) {
-            turnosAdmin.splice(turnoIndex, 1);
-            guardarDatos();
-        } else {
-            // Si no está en turnosAdmin, buscar en turnos públicos
-            let turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-            turnosPublicos = turnosPublicos.filter(t => t.id !== id);
-            localStorage.setItem('turnosPublicos', JSON.stringify(turnosPublicos));
-        }
-        
-        cargarTurnosDia();
-        cargarTurnosSemana();
-        mostrarMensaje('Turno cancelado exitosamente');
+    } catch (error) {
+        listaTurnos.innerHTML = '<div class="turno-item error">Error al cargar turnos de la semana</div>';
     }
 }
 
-function eliminarTurnoPublico(id) {
+async function eliminarTurno(id) {
     if (confirm('¿Está seguro de que desea cancelar este turno?')) {
-        let turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-        turnosPublicos = turnosPublicos.filter(t => t.id !== id);
-        localStorage.setItem('turnosPublicos', JSON.stringify(turnosPublicos));
-        cargarTurnosDia();
-        cargarTurnosSemana();
-        mostrarMensaje('Turno cancelado exitosamente');
+        try {
+            await apiEliminarTurno(id);
+            mostrarMensaje('Turno cancelado exitosamente');
+            await cargarTurnosDia();
+            await cargarTurnosSemana();
+        } catch (error) {
+            mostrarMensaje('Error: ' + error.message);
+        }
     }
 }
 
@@ -753,76 +707,150 @@ function formatearFecha(fecha) {
 }
 
 function mostrarMensaje(mensaje) {
-    // En una implementación real, usaríamos un sistema de notificaciones
-    alert(mensaje);
+    // Crear un elemento de notificación
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff7a5a;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    notification.textContent = mensaje;
+    
+    document.body.appendChild(notification);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        document.body.removeChild(notification);
+    }, 3000);
 }
 
-function actualizarSelectClientes() {
+async function actualizarSelectClientes() {
     const selectCliente = document.getElementById('turnoClienteId');
     selectCliente.innerHTML = '<option value="">Seleccione un cliente...</option>';
     
-    clientes.forEach(cliente => {
-        const option = document.createElement('option');
-        option.value = cliente.id;
-        option.textContent = `${cliente.nombre} ${cliente.apellido}`;
-        selectCliente.appendChild(option);
-    });
+    try {
+        const clientesData = await apiObtenerClientes();
+        clientesData.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente.id;
+            option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+            selectCliente.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error al cargar clientes en select:', error);
+    }
 }
 
 // Búsqueda de clientes
-document.getElementById('buscarCliente').addEventListener('input', function() {
+document.getElementById('buscarCliente').addEventListener('input', async function() {
     const busqueda = this.value.toLowerCase();
-    const filas = document.querySelectorAll('#tablaClientes tr');
     
-    filas.forEach(fila => {
-        const textoFila = fila.textContent.toLowerCase();
-        fila.style.display = textoFila.includes(busqueda) ? '' : 'none';
-    });
+    if (busqueda === '') {
+        await cargarTablaClientes();
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/clientes/buscar?nombre=${encodeURIComponent(busqueda)}`);
+        if (!response.ok) throw new Error('Error en búsqueda');
+        
+        const clientesFiltrados = await response.json();
+        const tablaClientes = document.getElementById('tablaClientes');
+        
+        tablaClientes.innerHTML = '';
+        
+        if (clientesFiltrados.length === 0) {
+            tablaClientes.innerHTML = '<tr><td colspan="8" class="text-center">No se encontraron clientes</td></tr>';
+            return;
+        }
+        
+        clientesFiltrados.forEach(cliente => {
+            const fila = document.createElement('tr');
+            const primeraMascota = cliente.mascotas && cliente.mascotas.length > 0 ? cliente.mascotas[0] : null;
+            
+            fila.innerHTML = `
+                <td>${cliente.id}</td>
+                <td>${cliente.nombre}</td>
+                <td>${cliente.apellido}</td>
+                <td>${cliente.telefono}</td>
+                <td>${cliente.correo}</td>
+                <td>${primeraMascota ? primeraMascota.nombre : '-'}</td>
+                <td>${primeraMascota ? primeraMascota.tipo : '-'}</td>
+                <td>
+                    <button class="action-btn btn-edit" onclick="editarCliente(${cliente.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="action-btn btn-delete" onclick="eliminarCliente(${cliente.id})">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </td>
+            `;
+            
+            tablaClientes.appendChild(fila);
+        });
+    } catch (error) {
+        console.error('Error en búsqueda:', error);
+    }
 });
 
-// ================= FUNCIONALIDAD PARA EDITAR TURNOS =================
+// ================= SISTEMA DE EDICIÓN DE TURNOS =================
 
 // Funciones para editar turnos
-function editarTurno(turno) {
-    // Llenar el formulario de edición con los datos del turno
-    document.getElementById('turnoEditId').value = turno.id;
-    document.getElementById('turnoEditTipo').value = turno.tipo || 'publico';
-    
-    if (turno.clienteId) {
-        // Turno administrativo
-        const cliente = clientes.find(c => c.id === turno.clienteId);
-        const mascota = cliente ? cliente.mascotas.find(m => m.id === turno.mascotaId) : null;
+async function editarTurnoDesdeLista(turnoId) {
+    try {
+        // Obtener información del turno
+        const turnosDia = await apiObtenerTurnosDia(new Date().toISOString().split('T')[0]);
+        const turno = turnosDia.find(t => t.id === turnoId);
         
-        if (cliente && mascota) {
+        if (!turno) {
+            mostrarMensaje('Turno no encontrado');
+            return;
+        }
+        
+        // Llenar el formulario de edición con los datos del turno
+        document.getElementById('turnoEditId').value = turno.id;
+        
+        // Buscar el cliente para obtener más información
+        const clienteResponse = await fetch(`${API_BASE_URL}/clientes`);
+        const clientes = await clienteResponse.json();
+        const cliente = clientes.find(c => 
+            `${c.nombre} ${c.apellido}` === turno.cliente_nombre
+        );
+        
+        if (cliente) {
             document.getElementById('turnoEditNombre').value = cliente.nombre;
             document.getElementById('turnoEditApellido').value = cliente.apellido;
             document.getElementById('turnoEditTelefono').value = cliente.telefono;
             document.getElementById('turnoEditCorreo').value = cliente.correo;
-            document.getElementById('turnoEditMascotaNombre').value = mascota.nombre;
-            document.getElementById('turnoEditMascotaTipo').value = mascota.tipo;
+            
+            // Buscar la mascota
+            const mascota = cliente.mascotas.find(m => m.nombre === turno.cliente_mascota);
+            if (mascota) {
+                document.getElementById('turnoEditMascotaNombre').value = mascota.nombre;
+                document.getElementById('turnoEditMascotaTipo').value = mascota.tipo;
+            }
         }
-    } else {
-        // Turno público
-        document.getElementById('turnoEditNombre').value = turno.nombre;
-        document.getElementById('turnoEditApellido').value = '';
-        document.getElementById('turnoEditTelefono').value = turno.telefono;
-        document.getElementById('turnoEditCorreo').value = turno.email;
-        document.getElementById('turnoEditMascotaNombre').value = turno.mascota;
-        document.getElementById('turnoEditMascotaTipo').value = turno.mascota === 'Perro' ? 'Perro' : 
-                                                              turno.mascota === 'Gato' ? 'Gato' : 'Otro';
+        
+        document.getElementById('turnoEditFecha').value = turno.dia;
+        document.getElementById('turnoEditHora').value = turno.hora;
+        
+        // Actualizar horas disponibles para la fecha seleccionada
+        await actualizarHorasDisponiblesEdicion(turno.dia, turno.hora);
+        
+        // Mostrar el modal
+        document.getElementById('modalEditarTurno').style.display = 'block';
+    } catch (error) {
+        mostrarMensaje('Error al cargar datos del turno: ' + error.message);
     }
-    
-    document.getElementById('turnoEditFecha').value = turno.fecha;
-    document.getElementById('turnoEditMensaje').value = turno.mensaje || '';
-    
-    // Actualizar horas disponibles para la fecha seleccionada
-    actualizarHorasDisponiblesEdicion(turno.fecha, turno.hora);
-    
-    // Mostrar el modal
-    document.getElementById('modalEditarTurno').style.display = 'block';
 }
 
-function actualizarHorasDisponiblesEdicion(fecha, horaActual) {
+async function actualizarHorasDisponiblesEdicion(fecha, horaActual) {
     const selectHora = document.getElementById('turnoEditHora');
     
     // Limpiar el select
@@ -830,36 +858,39 @@ function actualizarHorasDisponiblesEdicion(fecha, horaActual) {
     
     if (!fecha) return;
     
-    // Obtener horas ocupadas para la fecha seleccionada
-    const horasOcupadas = obtenerHorasOcupadas(fecha);
-    
-    // Agregar opciones de horas disponibles
-    horariosDisponibles.forEach(hora => {
-        const option = document.createElement('option');
-        option.value = hora;
-        option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+    try {
+        // Obtener horas ocupadas para la fecha seleccionada
+        const horasOcupadas = await obtenerHorasOcupadas(fecha);
         
-        // Marcar como seleccionada la hora actual
-        if (hora === horaActual) {
-            option.selected = true;
-        }
-        
-        // Deshabilitar opción si la hora está ocupada y no es la hora actual
-        if (horasOcupadas.includes(hora) && hora !== horaActual) {
-            option.disabled = true;
-            option.textContent += ' (No disponible)';
-        }
-        
-        selectHora.appendChild(option);
-    });
+        // Agregar opciones de horas disponibles
+        horariosDisponibles.forEach(hora => {
+            const option = document.createElement('option');
+            option.value = hora;
+            option.textContent = `${hora} ${hora < '12:00' ? 'AM' : 'PM'}`;
+            
+            // Marcar como seleccionada la hora actual
+            if (hora === horaActual.substring(0, 5)) {
+                option.selected = true;
+            }
+            
+            // Deshabilitar opción si la hora está ocupada y no es la hora actual
+            if (horasOcupadas.includes(hora) && hora !== horaActual.substring(0, 5)) {
+                option.disabled = true;
+                option.textContent += ' (No disponible)';
+            }
+            
+            selectHora.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error al actualizar horas disponibles:', error);
+    }
 }
 
 // Formulario de edición de turno
-document.getElementById('formEditarTurno').addEventListener('submit', function(e) {
+document.getElementById('formEditarTurno').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const turnoId = parseInt(document.getElementById('turnoEditId').value);
-    const turnoTipo = document.getElementById('turnoEditTipo').value;
+    const turnoId = document.getElementById('turnoEditId').value;
     const fecha = document.getElementById('turnoEditFecha').value;
     const hora = document.getElementById('turnoEditHora').value;
     
@@ -868,54 +899,70 @@ document.getElementById('formEditarTurno').addEventListener('submit', function(e
         return;
     }
     
-    // Verificar si la hora ya está ocupada (excepto para el mismo turno)
-    const horasOcupadas = obtenerHorasOcupadas(fecha);
-    const turnoExistente = turnoTipo === 'admin' ? 
-        turnosAdmin.find(t => t.id === turnoId) : 
-        JSON.parse(localStorage.getItem('turnosPublicos')).find(t => t.id === turnoId);
-    
-    if (horasOcupadas.includes(hora) && turnoExistente.hora !== hora) {
-        mostrarMensaje('Lo sentimos, esa hora ya está ocupada. Por favor, elija otra.');
-        return;
-    }
-    
-    if (turnoTipo === 'admin') {
-        // Actualizar turno administrativo
-        const turnoIndex = turnosAdmin.findIndex(t => t.id === turnoId);
-        if (turnoIndex !== -1) {
-            turnosAdmin[turnoIndex].fecha = fecha;
-            turnosAdmin[turnoIndex].hora = hora;
-            turnosAdmin[turnoIndex].mensaje = document.getElementById('turnoEditMensaje').value;
+    try {
+        // Primero eliminar el turno existente
+        await apiEliminarTurno(turnoId);
+        
+        // Verificar si la nueva hora está disponible
+        const horasOcupadas = await obtenerHorasOcupadas(fecha);
+        if (horasOcupadas.includes(hora)) {
+            mostrarMensaje('Lo sentimos, esa hora ya está ocupada. Por favor, elija otra.');
+            return;
         }
-    } else {
-        // Actualizar turno público
-        let turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-        const turnoIndex = turnosPublicos.findIndex(t => t.id === turnoId);
-        if (turnoIndex !== -1) {
-            turnosPublicos[turnoIndex].fecha = fecha;
-            turnosPublicos[turnoIndex].hora = hora;
-            turnosPublicos[turnoIndex].mensaje = document.getElementById('turnoEditMensaje').value;
-            localStorage.setItem('turnosPublicos', JSON.stringify(turnosPublicos));
+        
+        // Obtener datos del cliente para recrear el turno
+        const nombre = document.getElementById('turnoEditNombre').value;
+        const apellido = document.getElementById('turnoEditApellido').value;
+        
+        // Buscar el cliente
+        const clientes = await apiObtenerClientes();
+        const cliente = clientes.find(c => 
+            c.nombre === nombre && c.apellido === apellido
+        );
+        
+        if (!cliente) {
+            mostrarMensaje('Cliente no encontrado');
+            return;
         }
+        
+        // Buscar la mascota
+        const mascotaNombre = document.getElementById('turnoEditMascotaNombre').value;
+        const mascota = cliente.mascotas.find(m => m.nombre === mascotaNombre);
+        
+        if (!mascota) {
+            mostrarMensaje('Mascota no encontrada');
+            return;
+        }
+        
+        // Crear nuevo turno con los datos actualizados
+        const turnoData = {
+            cliente_id: cliente.id,
+            fecha: fecha,
+            hora: hora + ':00',
+            mascota_id: mascota.id
+        };
+        
+        await apiCrearTurno(turnoData);
+        
+        // Cerrar modal de edición
+        document.getElementById('modalEditarTurno').style.display = 'none';
+        
+        // Mostrar modal de confirmación
+        document.getElementById('modalConfirmacion').style.display = 'block';
+        
+        // Actualizar las listas de turnos
+        await cargarTurnosDia();
+        await cargarTurnosSemana();
+        
+    } catch (error) {
+        mostrarMensaje('Error: ' + error.message);
     }
-    
-    guardarDatos();
-    
-    // Cerrar modal de edición
-    document.getElementById('modalEditarTurno').style.display = 'none';
-    
-    // Mostrar modal de confirmación
-    document.getElementById('modalConfirmacion').style.display = 'block';
-    
-    // Actualizar las listas de turnos
-    cargarTurnosDia();
-    cargarTurnosSemana();
 });
 
 // Actualizar horas disponibles cuando cambia la fecha en el formulario de edición
-document.getElementById('turnoEditFecha').addEventListener('change', function() {
+document.getElementById('turnoEditFecha').addEventListener('change', async function() {
     const horaActual = document.getElementById('turnoEditHora').value;
-    actualizarHorasDisponiblesEdicion(this.value, horaActual);
+    await actualizarHorasDisponiblesEdicion(this.value, horaActual);
 });
 
 // Funciones para cerrar modales
@@ -947,25 +994,7 @@ window.addEventListener('click', function(e) {
     }
 });
 
-// Funciones específicas para editar turnos administrativos y públicos
-function editarTurnoAdmin(id) {
-    const turno = turnosAdmin.find(t => t.id === id);
-    if (turno) {
-        turno.tipo = 'admin';
-        editarTurno(turno);
-    }
-}
-
-function editarTurnoPublico(id) {
-    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-    const turno = turnosPublicos.find(t => t.id === id);
-    if (turno) {
-        turno.tipo = 'publico';
-        editarTurno(turno);
-    }
-}
-
-// ================= SISTEMA DE REPORTES CON ANIMACIONES =================
+// ================= SISTEMA DE REPORTES =================
 
 // Mostrar/ocultar fechas personalizadas
 document.getElementById('reportePeriodo').addEventListener('change', function() {
@@ -979,329 +1008,22 @@ document.getElementById('reportePeriodo').addEventListener('change', function() 
 
 // Función principal para generar reportes
 async function generarReportes() {
-    const periodo = document.getElementById('reportePeriodo').value;
-    let fechaInicio, fechaFin;
-
-    // Calcular fechas según el período seleccionado
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    switch (periodo) {
-        case 'hoy':
-            fechaInicio = new Date(hoy);
-            fechaFin = new Date(hoy);
-            break;
-        case 'semana':
-            fechaInicio = new Date(hoy);
-            fechaInicio.setDate(hoy.getDate() - 7);
-            fechaFin = new Date(hoy);
-            break;
-        case 'mes':
-            fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-            break;
-        case 'trimestre':
-            fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth() - 2, 1);
-            fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-            break;
-        case 'personalizado':
-            fechaInicio = new Date(document.getElementById('fechaInicio').value);
-            fechaFin = new Date(document.getElementById('fechaFin').value);
-            break;
-        default:
-            fechaInicio = new Date(hoy);
-            fechaFin = new Date(hoy);
-    }
-
-    // Asegurarse de que las fechas son válidas
-    if (isNaN(fechaInicio.getTime()) || isNaN(fechaFin.getTime())) {
-        mostrarMensaje('Por favor, seleccione fechas válidas.');
-        return;
-    }
-
-    // Obtener todos los turnos del período
-    const turnosPublicos = JSON.parse(localStorage.getItem('turnosPublicos')) || [];
-    const turnosAdminData = JSON.parse(localStorage.getItem('turnosAdmin')) || [];
-    const todosLosTurnos = [...turnosPublicos, ...turnosAdminData];
-
-    const turnosFiltrados = todosLosTurnos.filter(turno => {
-        const fechaTurno = new Date(turno.fecha);
-        return fechaTurno >= fechaInicio && fechaTurno <= fechaFin;
-    });
-
-    // Generar todos los reportes con animaciones
-    await generarResumenGeneral(turnosFiltrados);
-    await generarReporteServicios(turnosFiltrados);
-    await generarReporteHorarios(turnosFiltrados);
-    generarReporteClientesFrecuentes(turnosFiltrados);
-    generarReporteEficiencia(turnosFiltrados);
-}
-// 1. Resumen General con Animaciones
-async function generarResumenGeneral(turnos) {
-    const totalTurnos = turnos.length;
-    
-    // Calcular ingresos totales
-    const ingresosTotales = turnos.reduce((total, turno) => {
-        const precio = preciosServicios[turno.servicio] || preciosServicios.otros;
-        return total + precio;
-    }, 0);
-
-    const totalClientes = new Set(turnos.map(t => t.clienteId || t.nombre)).size;
-
-    // Servicio más popular
-    const serviciosCount = {};
-    turnos.forEach(turno => {
-        serviciosCount[turno.servicio] = (serviciosCount[turno.servicio] || 0) + 1;
-    });
-    
-    const servicioPopular = Object.keys(serviciosCount).reduce((a, b) => 
-        serviciosCount[a] > serviciosCount[b] ? a : b, '');
-
-    // Animar los valores en secuencia
-    await animator.animateNumber(
-        document.getElementById('totalIngresos'), 
-        ingresosTotales, 
-        { prefix: '$', duration: 1500, easing: 'easeOutElastic' }
-    );
-
-    await animator.animateNumber(
-        document.getElementById('totalTurnos'), 
-        totalTurnos, 
-        { duration: 1200, easing: 'easeOutQuart' }
-    );
-
-    await animator.animateNumber(
-        document.getElementById('totalClientes'), 
-        totalClientes, 
-        { duration: 1000, easing: 'easeOutQuart' }
-    );
-
-    document.getElementById('servicioPopular').textContent = servicioPopular || '-';
+    // Para implementar reportes completos, necesitarías endpoints adicionales en tu API Flask
+    mostrarMensaje('Funcionalidad de reportes en desarrollo. Se necesitan endpoints adicionales en la API.');
 }
 
-// 2. Servicios Más Populares con Animaciones
-async function generarReporteServicios(turnos) {
-    const serviciosCount = {};
-    const serviciosIngresos = {};
+// ================= INICIALIZACIÓN =================
 
-    turnos.forEach(turno => {
-        const servicio = turno.servicio;
-        const precio = preciosServicios[servicio] || preciosServicios.otros;
-        
-        serviciosCount[servicio] = (serviciosCount[servicio] || 0) + 1;
-        serviciosIngresos[servicio] = (serviciosIngresos[servicio] || 0) + precio;
-    });
-
-    const serviciosArray = Object.keys(serviciosCount).map(servicio => ({
-        servicio,
-        cantidad: serviciosCount[servicio],
-        ingresos: serviciosIngresos[servicio]
-    })).sort((a, b) => b.cantidad - a.cantidad);
-
-    const maxCantidad = Math.max(...serviciosArray.map(s => s.cantidad));
-
-    let html = '<div class="grafico-barras">';
-    serviciosArray.forEach(item => {
-        const porcentaje = (item.cantidad / maxCantidad) * 100;
-        html += `
-            <div class="barra-container">
-                <div class="barra-label">
-                    <span>${item.servicio}</span>
-                    <span>${item.cantidad} turnos ($${item.ingresos.toLocaleString()})</span>
-                </div>
-                <div class="barra">
-                    <div class="barra-progreso" data-servicio="${item.servicio}" style="width: 0%">
-                        <span class="barra-progreso-texto">0</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-
-    document.getElementById('graficoServicios').innerHTML = html;
-
-    // Animar las barras después de un pequeño delay
-    setTimeout(async () => {
-        for (let i = 0; i < serviciosArray.length; i++) {
-            const item = serviciosArray[i];
-            const porcentaje = (item.cantidad / maxCantidad) * 100;
-            const barraElement = document.querySelector(`[data-servicio="${item.servicio}"]`);
-            
-            if (barraElement) {
-                await animator.animateBar(barraElement, porcentaje, 800);
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-        }
-    }, 300);
-}
-
-// 3. Horarios Pico con Animaciones
-async function generarReporteHorarios(turnos) {
-    const horariosCount = {
-        "09:00": 0, "10:00": 0, "11:00": 0, "12:00": 0,
-        "14:00": 0, "15:00": 0, "16:00": 0, "17:00": 0
-    };
-
-    turnos.forEach(turno => {
-        if (horariosCount.hasOwnProperty(turno.hora)) {
-            horariosCount[turno.hora]++;
-        }
-    });
-
-    const maxHorarios = Math.max(...Object.values(horariosCount));
-
-    let html = '<div class="grafico-barras">';
-    Object.entries(horariosCount).forEach(([hora, cantidad]) => {
-        const porcentaje = maxHorarios > 0 ? (cantidad / maxHorarios) * 100 : 0;
-        html += `
-            <div class="barra-container">
-                <div class="barra-label">
-                    <span>${hora} ${hora < '12:00' ? 'AM' : 'PM'}</span>
-                    <span>${cantidad} turnos</span>
-                </div>
-                <div class="barra">
-                    <div class="barra-progreso" data-hora="${hora}" style="width: 0%">
-                        <span class="barra-progreso-texto">0</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-
-    document.getElementById('graficoHorarios').innerHTML = html;
-
-    // Animar las barras después de un pequeño delay
-    setTimeout(async () => {
-        const horariosEntries = Object.entries(horariosCount);
-        for (let i = 0; i < horariosEntries.length; i++) {
-            const [hora, cantidad] = horariosEntries[i];
-            const porcentaje = maxHorarios > 0 ? (cantidad / maxHorarios) * 100 : 0;
-            const barraElement = document.querySelector(`[data-hora="${hora}"]`);
-            
-            if (barraElement) {
-                await animator.animateBar(barraElement, porcentaje, 600);
-                await new Promise(resolve => setTimeout(resolve, 50));
-            }
-        }
-    }, 300);
-}
-
-// 4. Clientes Frecuentes
-function generarReporteClientesFrecuentes(turnos) {
-    const clientesMap = {};
-
-    turnos.forEach(turno => {
-        const clienteId = turno.clienteId || turno.nombre;
-        const clienteNombre = turno.clienteId ? 
-            (clientes.find(c => c.id === turno.clienteId)?.nombre + ' ' + clientes.find(c => c.id === turno.clienteId)?.apellido) : 
-            turno.nombre;
-        
-        if (!clientesMap[clienteId]) {
-            clientesMap[clienteId] = {
-                nombre: clienteNombre,
-                visitas: 0,
-                totalGastado: 0,
-                ultimaVisita: ''
-            };
-        }
-
-        const precio = preciosServicios[turno.servicio] || preciosServicios.otros;
-        clientesMap[clienteId].visitas++;
-        clientesMap[clienteId].totalGastado += precio;
-        clientesMap[clienteId].ultimaVisita = turno.fecha;
-    });
-
-    const clientesArray = Object.values(clientesMap)
-        .sort((a, b) => b.visitas - a.visitas)
-        .slice(0, 10);
-
-    let html = '';
-    if (clientesArray.length === 0) {
-        html = '<tr><td colspan="5" class="text-center">No hay datos para el período seleccionado</td></tr>';
-    } else {
-        clientesArray.forEach((cliente, index) => {
-            html += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${cliente.nombre}</td>
-                    <td>${cliente.visitas}</td>
-                    <td>${formatearFechaCorta(cliente.ultimaVisita)}</td>
-                    <td>$${cliente.totalGastado.toLocaleString()}</td>
-                </tr>
-            `;
-        });
-    }
-
-    document.getElementById('tablaClientesFrecuentes').innerHTML = html;
-}
-
-// 5. Eficiencia del Personal (simulada)
-function generarReporteEficiencia(turnos) {
-    // Simulamos datos de peluqueros
-    const peluqueros = [
-        { id: 1, nombre: "María González", turnos: 0, ingresos: 0 },
-        { id: 2, nombre: "Carlos Rodríguez", turnos: 0, ingresos: 0 },
-        { id: 3, nombre: "Ana Martínez", turnos: 0, ingresos: 0 }
-    ];
-
-    // Distribuir turnos aleatoriamente entre peluqueros para el ejemplo
-    turnos.forEach(turno => {
-        const peluqueroIndex = Math.floor(Math.random() * peluqueros.length);
-        const precio = preciosServicios[turno.servicio] || preciosServicios.otros;
-        
-        peluqueros[peluqueroIndex].turnos++;
-        peluqueros[peluqueroIndex].ingresos += precio;
-    });
-
-    let html = '';
-    peluqueros.forEach(peluquero => {
-        const promedio = peluquero.turnos > 0 ? peluquero.ingresos / peluquero.turnos : 0;
-        let eficiencia = 'Baja';
-        let badgeClass = 'badge-warning';
-
-        if (peluquero.turnos >= 10) {
-            eficiencia = 'Alta';
-            badgeClass = 'badge-success';
-        } else if (peluquero.turnos >= 5) {
-            eficiencia = 'Media';
-            badgeClass = 'badge-info';
-        }
-
-        html += `
-            <tr>
-                <td>${peluquero.nombre}</td>
-                <td>${peluquero.turnos}</td>
-                <td>$${peluquero.ingresos.toLocaleString()}</td>
-                <td>$${Math.round(promedio).toLocaleString()}</td>
-                <td><span class="badge ${badgeClass}">${eficiencia}</span></td>
-            </tr>
-        `;
-    });
-
-    document.getElementById('tablaEficiencia').innerHTML = html;
-}
-
-// Función auxiliar para formatear fecha corta
-function formatearFechaCorta(fecha) {
-    if (!fecha) return '-';
-    const fechaObj = new Date(fecha);
-    return fechaObj.toLocaleDateString('es-ES');
-}
-
-// Inicialización
-document.addEventListener('DOMContentLoaded', function() {
-    cargarTablaClientes();
-    actualizarSelectClientes();
-    cargarTurnosDia();
-    cargarTurnosSemana();
+document.addEventListener('DOMContentLoaded', async function() {
+    await cargarTablaClientes();
+    await actualizarSelectClientes();
+    await cargarTurnosDia();
+    await cargarTurnosSemana();
     
     // Configurar fecha mínima para los inputs de fecha
     const fechaInputs = document.querySelectorAll('input[type="date"]');
     fechaInputs.forEach(input => {
         input.min = new Date().toISOString().split('T')[0];
-        // Establecer fecha actual por defecto
         if (!input.value) {
             input.value = new Date().toISOString().split('T')[0];
         }
@@ -1312,7 +1034,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('consultaSemana').value = hoy.toISOString().split('T')[0];
     
     // Actualizar horas disponibles en el formulario administrativo
-    actualizarHorasDisponiblesAdmin();
+    document.getElementById('turnoFecha').addEventListener('change', function() {
+        actualizarHorasDisponiblesAdmin();
+    });
     
     // Configurar fechas para reportes (hoy por defecto)
     document.getElementById('fechaInicio').value = hoy.toISOString().split('T')[0];
